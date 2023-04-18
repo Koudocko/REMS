@@ -3,10 +3,14 @@
 #include <DallasTemperature.h>
 
 #define ONE_WIRE_BUS 23
-#define DHTPIN 29
-#define HCSRPIN 17
-#define FANPIN 15
-#define LEDPIN 14
+#define DHT_PIN 29
+#define HCSR_PIN 17
+#define FAN_PIN 15
+#define LAMP_PIN_A 14
+#define LAMP_PIN_B 35
+#define SW_PIN 27
+#define WATER_PIN 16
+#define SOIL_PIN A14
 
 struct Timer{
   Timer(unsigned long delay, void (*callback)()) : delay(delay), callback(callback){}
@@ -21,7 +25,7 @@ private:
   void (*callback)();
 };
 
-DHT dht(DHTPIN, DHT22);  
+DHT dht(DHT_PIN, DHT22);  
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 int deviceCount = 0;
@@ -40,18 +44,18 @@ Timer dht_timer = Timer(3000, []{
   if (!stable){
     if (temperature - target < -0.25f){
       Serial.println("WARM");
-      digitalWrite(FANPIN, HIGH);
-      digitalWrite(LEDPIN, LOW);
+      digitalWrite(FAN_PIN, HIGH);
+      digitalWrite(LAMP_PIN_A, LOW);
     }
     else if (temperature - target > 0.25f){
       Serial.println("COOL");
-      digitalWrite(FANPIN, LOW);
-      digitalWrite(LEDPIN, HIGH);
+      digitalWrite(FAN_PIN, LOW);
+      digitalWrite(LAMP_PIN_A, HIGH);
     }
     else{
       Serial.println("STABLE");
-      digitalWrite(FANPIN, HIGH);
-      digitalWrite(LEDPIN, HIGH);
+      digitalWrite(FAN_PIN, HIGH);
+      digitalWrite(LAMP_PIN_A, HIGH);
       stable = true;
     }
   }
@@ -65,7 +69,7 @@ Timer dht_timer = Timer(3000, []{
 Timer hrc_timer = Timer(1000, []{
   static bool motion = false;
 
-  if (digitalRead(HCSRPIN)){
+  if (digitalRead(HCSR_PIN)){
     if (!motion){
       motion = true;
       Serial.println("HRSR501 Sensor : Motion detected");
@@ -79,7 +83,7 @@ Timer hrc_timer = Timer(1000, []{
   }
 });
 
-Timer ds18b20_timer = Timer(1800000, []{
+Timer ds18b20_timer = Timer(5000, []{
   sensors.requestTemperatures(); 
   
   for (int i = 0; i < deviceCount;  i++)
@@ -95,14 +99,35 @@ Timer ds18b20_timer = Timer(1800000, []{
   }
 });
 
+Timer sw420_timer = Timer(1000, []{
+  if (digitalRead(SW_PIN)){
+    Serial.println("WATER ON");
+    digitalWrite(LAMP_PIN_B, LOW);
+  }
+  else{
+    Serial.println("WATER OFF");
+    digitalWrite(LAMP_PIN_B, HIGH);
+  }
+});
+
+Timer soil_timer = Timer(3000, []{
+  Serial.print("Soil Moisture Value: ");
+  Serial.println(analogRead(SOIL_PIN));
+});
+
+
 void setup(void)
 {
   sensors.begin();  
   Serial.begin(9600);
   dht.begin();
-  pinMode(HCSRPIN, INPUT);
-  pinMode(FANPIN, OUTPUT);
-  pinMode(LEDPIN, OUTPUT);
+  pinMode(HCSR_PIN, INPUT);
+  pinMode(SW_PIN, INPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  pinMode(LAMP_PIN_A, OUTPUT);
+  pinMode(LAMP_PIN_B, OUTPUT);
+  pinMode(WATER_PIN, OUTPUT);
+  pinMode(SOIL_PIN, INPUT);
 
   while (!deviceCount){
     Serial.print("Locating devices...");
@@ -116,8 +141,11 @@ void setup(void)
 
 void loop(void){
   dht_timer.execute();
-  //ds18b20_timer.execute();
-  //hrc_timer.execute();
+  ds18b20_timer.execute();
+  hrc_timer.execute();
+  sw420_timer.execute();
+  soil_timer.execute();
 
+  digitalWrite(WATER_PIN, HIGH);
   delay(10);
 }
