@@ -12,6 +12,11 @@
 #define WATER_PIN 16
 #define SOIL_PIN A14
 
+DHT dht(DHT_PIN, DHT22);  
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+int deviceCount = 0;
+
 struct Timer{
   Timer(unsigned long delay, void (*callback)()) : delay(delay), callback(callback){}
 
@@ -25,10 +30,35 @@ private:
   void (*callback)();
 };
 
-DHT dht(DHT_PIN, DHT22);  
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensors(&oneWire);
-int deviceCount = 0;
+struct{
+  float ds18b20_temperature[3]{};
+  float dht22_humidity{};
+  float dht22_temperature{};
+  bool water_sensor_trigger{};
+  bool motion_detected{};
+  int soil_moisture{};
+
+  const char* to_string(){
+    String json = "{";
+  
+    json += "\t\"ds18b20_temperature\": [";
+    for (int i = 0; i < 3; ++i){
+      json += ds18b20_temperature[i];
+      if (i < 2)
+        json += ", ";
+    }
+    json += "],\n";
+
+    json += String("\t\"dht22_humidity\": ") + dht22_humidity + ",\n";
+    json += String("\t\"dht22_temperature\": ") + dht22_temperature + ",\n";
+    json += String("\t\"water_sensor_trigger\": ") + water_sensor_trigger + ",\n";
+    json += String("\t\"motion_detected\": ") + motion_detected + ",\n";
+    json += String("\t\"soil_moisture\": ") + soil_moisture + ",\n";
+
+    json += "}\n";
+  }
+} json_output;
+
 
 Timer dht_timer = Timer(3000, []{
   float humidity = dht.readHumidity();
@@ -37,48 +67,51 @@ Timer dht_timer = Timer(3000, []{
   float target = 20.0f, range = 3.0f;
 
   if (abs(temperature - target) >= range){
-    Serial.println("NOT STABLE");
+    /* Serial.println("NOT STABLE"); */
     stable = false;
   }
 
   if (!stable){
     if (temperature - target < -0.25f){
-      Serial.println("WARM");
+      /* Serial.println("WARM"); */
       digitalWrite(FAN_PIN, HIGH);
       digitalWrite(LAMP_PIN_A, LOW);
     }
     else if (temperature - target > 0.25f){
-      Serial.println("COOL");
+      /* Serial.println("COOL"); */
       digitalWrite(FAN_PIN, LOW);
       digitalWrite(LAMP_PIN_A, HIGH);
     }
     else{
-      Serial.println("STABLE");
+      /* Serial.println("STABLE"); */
       digitalWrite(FAN_PIN, HIGH);
       digitalWrite(LAMP_PIN_A, HIGH);
       stable = true;
     }
   }
 
-  Serial.print("DHT22 Sensor Humidity : ");
-  Serial.println(humidity);
-  Serial.print("DHT22 Sensor Temperature : ");
-  Serial.println(temperature);
+  /* Serial.print("DHT22 Sensor Humidity : "); */
+  /* Serial.println(humidity); */
+  /* Serial.print("DHT22 Sensor Temperature : "); */
+  /* Serial.println(temperature); */
+  json_output.dht22_humidity = humidity;
+  json_output.dht22_temperature = temperature;
 });
 
 Timer hrc_timer = Timer(1000, []{
   static bool motion = false;
+  json_output.motion_detected = motion;
 
   if (digitalRead(HCSR_PIN)){
     if (!motion){
       motion = true;
-      Serial.println("HRSR501 Sensor : Motion detected");
+      /* Serial.println("HRSR501 Sensor : Motion detected"); */
     }
   }
   else{
     if (motion){
       motion = false;
-      Serial.println("HRSR501 Sensor : Motion ended");
+      /* Serial.println("HRSR501 Sensor : Motion ended"); */
     }
   }
 });
@@ -88,31 +121,28 @@ Timer ds18b20_timer = Timer(5000, []{
   
   for (int i = 0; i < deviceCount;  i++)
   {
-    Serial.print("DS18B20 Sensor ");
-    Serial.print(i+1);
-    Serial.print(" : ");
     float tempC = sensors.getTempCByIndex(i);
-    Serial.print(tempC);
-    Serial.print("C  |  ");
-    Serial.print(DallasTemperature::toFahrenheit(tempC));
-    Serial.println("F");
+    json_output.ds18b20_temperature[i] = tempC;
+    /* Serial.print("DS18B20 Sensor "); */
+    /* Serial.print(i+1); */
+    /* Serial.print(" : "); */
+    /* Serial.print(tempC); */
+    /* Serial.print("C  |  "); */
+    /* Serial.print(DallasTemperature::toFahrenheit(tempC)); */
+    /* Serial.println("F"); */
   }
 });
 
 Timer sw420_timer = Timer(1000, []{
-  if (digitalRead(SW_PIN)){
-    Serial.println("WATER ON");
-    digitalWrite(LAMP_PIN_B, LOW);
-  }
-  else{
-    Serial.println("WATER OFF");
-    digitalWrite(LAMP_PIN_B, HIGH);
-  }
+  bool trigger = digitalRead(SW_PIN);
+  digitalWrite(LAMP_PIN_B, !trigger);
+  json_output.water_sensor_trigger = water;
 });
 
 Timer soil_timer = Timer(3000, []{
-  Serial.print("Soil Moisture Value: ");
-  Serial.println(analogRead(SOIL_PIN));
+  json_output.soil_moisture = analogRead(SOIL_PIN);
+  /* Serial.print("Soil Moisture Value: "); */
+  /* Serial.println(analogRead(SOIL_PIN)); */
 });
 
 
@@ -147,5 +177,6 @@ void loop(void){
   soil_timer.execute();
 
   digitalWrite(WATER_PIN, HIGH);
+  Serial.print(json_output.to_string());
   delay(10);
 }
