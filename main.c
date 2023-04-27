@@ -6,8 +6,7 @@
 
 int main() {
     int fd = open("/dev/ttyACM1", O_RDWR | O_NOCTTY | O_NONBLOCK);
-    FILE* log_fd = fopen("/rems/readings/log1.txt", "w");
-    if (fd == -1 || log_fd == NULL) {
+    if (fd == -1) {
         perror("Error opening serial port");
         return 1;
     }
@@ -48,12 +47,15 @@ int main() {
         buffer[bufferSize] = '\0';
 
         printf("%s\n", buffer);
-        fprintf(log_fd, "%s\n", buffer);
-        rewind(log_fd);
-        fflush(log_fd);
+
+        FILE* log_fd = fopen("/rems/readings/log1.txt", "w");
+        if (log_fd != NULL){
+            fprintf(log_fd, "%s\n", buffer);
+            fflush(log_fd);
+            fclose(log_fd);
+        }
     }
 
-    fclose(log_fd);
     close(fd);
     return 0;
 }
