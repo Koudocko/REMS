@@ -55,4 +55,4 @@ file_handle.flush()
 file_handle.truncate()
 file_handle.close()
 
-os.system("/rems/commands/rems_2_transfer_sh")
+os.system("/rems/commands/rems_2_transfer.sh")
