@@ -1,0 +1,15 @@
+[Unit]
+Description=Retrives/logs data from the arduino device.
+
+[Install]
+WantedBy=multi-user.target
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/rems/commands/arduino-data.sh
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=%n

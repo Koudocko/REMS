@@ -6,6 +6,7 @@ sudo apt-get install python3
 wget https://github.com/pimoroni/breakout-garden/archive/master.zip
 unzip master.zip
 sudo ./breakout-garden-master/install.sh
+sudo rm -r breakout-garden-master
 sudo systemctl enable cron --now
 
 // Install files
