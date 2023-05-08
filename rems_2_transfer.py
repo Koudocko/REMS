@@ -13,13 +13,13 @@ try:
     from smbus2 import SMBus
 except ImportError:
     from smbus import SMBus
-from bme280 import BME280
+from bmp280 import BMP280
 
 log_path = "/rems/readings/log0.txt"
 
 sgp30 = SGP30()
 gas = MICS6814()
-bme280 = BME280(i2c_dev=SMBus(1))
+bmp280 = BMP280(i2c_dev=SMBus(1))
 
 print("Sensor warming up, please wait...")
 def crude_progress_bar():
@@ -37,22 +37,23 @@ def mics_log():
     result = gas.read_all()
     return "MICS6814", { "Oxidising": result.oxidising, "Reducing": result.reducing, "NH3": result.nh3, "ADC": result.adc }
 
-def bme280_log():
-    return "BME280", { "Temperature": bme280.get_temperature(), "Pressure": bme280.get_pressure(), "Humidity": bme280.get_humidity() }
+def bmp280_log():
+    return "BMP280", { "Temperature": bmp280.get_temperature(), "Pressure": bmp280.get_pressure() }
 
-sensors = [sgp30_log, mics_log, bme280_log]
+sensors = [sgp30_log, mics_log, bmp280_log]
 log_data = { "data": {}, "time": datetime.now().strftime("%H:%M:%S") }
 
 file_handle = open(log_path, "w")
-file_handle.seek(0)
 
+file_handle.seek(0)
 for sensor in sensors:
    res = sensor()
-   log_data["data"][res[0]] = res[1]
 
+   log_data["data"][res[0]] = res[1]
 file_handle.write(json.dumps(log_data))
 file_handle.flush()
-file_handle.truncate()
-file_handle.close()
 
+file_handle.truncate()
 os.system("/rems/commands/rems_2_transfer.sh")
+
+file_handle.close()
