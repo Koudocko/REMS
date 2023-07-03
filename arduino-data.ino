@@ -10,7 +10,11 @@ DallasTemperature sensors(&oneWire);
 int deviceCount = 0;
 
 struct Module{
-  Module(unsigned long delay, void (*callback)(uint*), uint* pins) : delay(delay), callback(callback), pins(pins){}
+  Module(unsigned long delay, void (*callback)(uint*), uint* pins) : 
+    delay(delay), callback(callback), pins(pins){}
+
+  Module(const Module& other, uint* pins) : 
+    delay(other.delay), callback(other.callback), pins(pins){}
 
   void execute(){
     unsigned int curr = millis();
@@ -55,7 +59,7 @@ struct{
 } json_output;
 
 
-Module dht_timer = Module(3000, [](uint* pins){
+Module temp_equipment = Module(3000, [](uint* pins){
   float humidity = dht.readHumidity();
   float temperature = dht.computeHeatIndex(dht.readTemperature(), humidity, false);
   static bool stable = false;
@@ -83,9 +87,13 @@ Module dht_timer = Module(3000, [](uint* pins){
 
   json_output.dht22_humidity = humidity;
   json_output.dht22_temperature = temperature;
-}, new int{ 15, 14 });
+}, new uint{ 15, 14 });
 
-Module hrc_timer = Module(1000, [](uint* pin){
+Module temp_laundry(temp_equipment, new uint{ 15, 14 });
+Module temp_kitchen(temp_equipment, new uint{ 15, 14 });
+Module temp_livingRoom(temp_equipment, new uint{ 15, 14 });
+
+Module motion_equipment = Module(1000, [](uint* pin){
   static bool motion = false;
   json_output.motion_detected = motion;
 
@@ -99,7 +107,11 @@ Module hrc_timer = Module(1000, [](uint* pin){
       motion = false;
     }
   }
-}, new int{17});
+}, new uint{17});
+
+Module motion_laundry(motion_equipment, new uint{17});
+Module motion_kitchen(motion_equipment, new uint{17});
+Module motion_livingRoom(motion_equipment, new uint{17});
 
 Module ds18b20_timer = Module(5000, [](uint*){
   sensors.requestTemperatures(); 
@@ -112,23 +124,22 @@ Module ds18b20_timer = Module(5000, [](uint*){
   }
 }, nullptr);
 
-
-Module sw420_timer = Module(1000, [](uint* pins){
+Module vib_equipment = Module(1000, [](uint* pins){
   bool trigger = digitalRead(pins[0]);
   digitalWrite(pins[1], !trigger);
 
   json_output.water_sensor_trigger = trigger;
 }, new uint[]{ 27, 35 });
 
+Module vib_laundry(vib_equipment, new uint[]{ 27, 35 });
+Module vib_kitchen(vib_equipment, new uint[]{ 27, 35 });
+Module vib_livingRoom(vib_equipment, new uint[]{ 27, 35 });
+
 Module soil_timer = Module(3000, [](uint* pin){
   json_output.soil_moisture = analogRead(*pin);
 }, new uint{ A14 });
 
-void setup(void)
-{
-  sensors.begin();  
-  Serial.begin(9600);
-  dht.begin();
+void pinInit(){
   pinMode(HCSR_PIN, INPUT);
   pinMode(SW_PIN, INPUT);
   pinMode(FAN_PIN, OUTPUT);
@@ -136,6 +147,15 @@ void setup(void)
   pinMode(LAMP_PIN_B, OUTPUT);
   pinMode(WATER_PIN, OUTPUT);
   pinMode(SOIL_PIN, INPUT);
+}
+
+void setup(void)
+{
+  sensors.begin();  
+  Serial.begin(9600);
+  dht.begin();
+
+  pinInit();
 
   while (!deviceCount){
     deviceCount = sensors.getDeviceCount();
