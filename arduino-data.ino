@@ -2,23 +2,15 @@
 #include <DHT.h>
 #include <DallasTemperature.h>
 
-#define ONE_WIRE_BUS 23
-#define DHT_PIN 29
-#define HCSR_PIN 17
-#define FAN_PIN 15
-#define LAMP_PIN_A 14
-#define LAMP_PIN_B 35
-#define SW_PIN 27
-#define WATER_PIN 16
-#define SOIL_PIN A14
+using uint = unsigned int;
 
-DHT dht(DHT_PIN, DHT22);  
-OneWire oneWire(ONE_WIRE_BUS);
+DHT dht(29, DHT22);  
+OneWire oneWire(23);
 DallasTemperature sensors(&oneWire);
 int deviceCount = 0;
 
-struct Timer{
-  Timer(unsigned long delay, void (*callback)()) : delay(delay), callback(callback){}
+struct Module{
+  Module(unsigned long delay, void (*callback)(uint*), uint* pins) : delay(delay), callback(callback), pins(pins){}
 
   void execute(){
     unsigned int curr = millis();
@@ -27,7 +19,8 @@ struct Timer{
 
 private:
   unsigned long delay, last{};
-  void (*callback)();
+  uint* pins{};
+  void (*callback)(uint*);
 };
 
 struct{
@@ -62,7 +55,7 @@ struct{
 } json_output;
 
 
-Timer dht_timer = Timer(3000, []{
+Module dht_timer = Module(3000, [](uint* pins){
   float humidity = dht.readHumidity();
   float temperature = dht.computeHeatIndex(dht.readTemperature(), humidity, false);
   static bool stable = false;
@@ -74,29 +67,29 @@ Timer dht_timer = Timer(3000, []{
 
   if (!stable){
     if (temperature - target < -0.25f){
-      digitalWrite(FAN_PIN, HIGH);
-      digitalWrite(LAMP_PIN_A, LOW);
+      digitalWrite(pins[0], HIGH);
+      digitalWrite(pins[1], LOW);
     }
     else if (temperature - target > 0.25f){
-      digitalWrite(FAN_PIN, LOW);
-      digitalWrite(LAMP_PIN_A, HIGH);
+      digitalWrite(pins[0], LOW);
+      digitalWrite(pins[1], HIGH);
     }
     else{
-      digitalWrite(FAN_PIN, HIGH);
-      digitalWrite(LAMP_PIN_A, HIGH);
+      digitalWrite(pins[0], HIGH);
+      digitalWrite(pins[1], HIGH);
       stable = true;
     }
   }
 
   json_output.dht22_humidity = humidity;
   json_output.dht22_temperature = temperature;
-});
+}, new int{ 15, 14 });
 
-Timer hrc_timer = Timer(1000, []{
+Module hrc_timer = Module(1000, [](uint* pin){
   static bool motion = false;
   json_output.motion_detected = motion;
 
-  if (digitalRead(HCSR_PIN)){
+  if (digitalRead(*pin)){
     if (!motion){
       motion = true;
     }
@@ -106,30 +99,30 @@ Timer hrc_timer = Timer(1000, []{
       motion = false;
     }
   }
-});
+}, new int{17});
 
-Timer ds18b20_timer = Timer(5000, []{
+Module ds18b20_timer = Module(5000, [](uint*){
   sensors.requestTemperatures(); 
   
   for (int i = 0; i < deviceCount;  i++)
   {
     float tempC = sensors.getTempCByIndex(i);
-    if (tempC != -127){
+    if (tempC != -127)
       json_output.ds18b20_temperature[i] = tempC;
-    }
   }
-});
+}, nullptr);
 
-Timer sw420_timer = Timer(1000, []{
-  bool trigger = digitalRead(SW_PIN);
-  digitalWrite(LAMP_PIN_B, !trigger);
+
+Module sw420_timer = Module(1000, [](uint* pins){
+  bool trigger = digitalRead(pins[0]);
+  digitalWrite(pins[1], !trigger);
+
   json_output.water_sensor_trigger = trigger;
-});
+}, new uint[]{ 27, 35 });
 
-Timer soil_timer = Timer(3000, []{
-  json_output.soil_moisture = analogRead(SOIL_PIN);
-});
-
+Module soil_timer = Module(3000, [](uint* pin){
+  json_output.soil_moisture = analogRead(*pin);
+}, new uint{ A14 });
 
 void setup(void)
 {
@@ -157,7 +150,7 @@ void loop(void){
   sw420_timer.execute();
   soil_timer.execute();
 
-  digitalWrite(WATER_PIN, HIGH);
+  digitalWrite(16, HIGH);
   Serial.print(json_output.to_string());
   delay(10);
 }
