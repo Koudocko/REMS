@@ -16,9 +16,6 @@ struct Module{
   Module(unsigned long delay, void (*callback)(uint*), uint* pins) : 
     delay(delay), callback(callback), pins(pins){}
 
-  Module(const Module& other, uint* pins) : 
-    delay(other.delay), callback(other.callback), pins(pins){}
-
   void execute(){
     unsigned int curr = millis();
     this->last = curr - this->last >= delay ? (callback(), curr) : this->last;
@@ -95,32 +92,36 @@ auto tempClosure = [](uint dhtPin) {
   };
 };
 
-Module temp_equipment = Module(3000, [](uint* pins){
-}, new uint{ 15, 14 });
+Module temps[4];
+temps[0] = Module(3000, tempClosure(9), new uint{ 15, 14 });
+temps[1] = Module(3000, tempClosure(9), new uint{ 15, 14 });
+temps[2] = Module(3000, tempClosure(9), new uint{ 15, 14 });
+temps[3] = Module(3000, tempClosure(9), new uint{ 15, 14 });
 
-Module temp_laundry(temp_equipment, new uint{ 15, 14 });
-Module temp_kitchen(temp_equipment, new uint{ 15, 14 });
-Module temp_livingRoom(temp_equipment, new uint{ 15, 14 });
+auto motionClosure = []{
+  bool motion{};
 
-Module motion_equipment = Module(1000, [](uint* pin){
-  static bool motion = false;
-  json_output.motion_detected = motion;
+  return [motion](uint* pin){
+    json_output.motion_detected = motion;
 
-  if (digitalRead(*pin)){
-    if (!motion){
-      motion = true;
+    if (digitalRead(*pin)){
+      if (!motion){
+        motion = true;
+      }
     }
-  }
-  else{
-    if (motion){
-      motion = false;
+    else{
+      if (motion){
+        motion = false;
+      }
     }
-  }
-}, new uint{17});
+  };
+};
 
-Module motion_laundry(motion_equipment, new uint{17});
-Module motion_kitchen(motion_equipment, new uint{17});
-Module motion_livingRoom(motion_equipment, new uint{17});
+Module motions[4];
+motions[0] = Module(1000, motionClosure(), new uint{17});
+motions[1] = Module(1000, motionClosure(), new uint{17});
+motions[2] = Module(1000, motionClosure(), new uint{17});
+motions[3] = Module(1000, motionClosure(), new uint{17});
 
 Module ds18b20_timer = Module(5000, [](uint*){
   sensors.requestTemperatures(); 
@@ -133,17 +134,18 @@ Module ds18b20_timer = Module(5000, [](uint*){
   }
 }, nullptr);
 
-Module vibs[4];
-vibs[0] = Module(1000, [](uint* pins){
+auto vibClosure = [](uint* pins){
   bool trigger = digitalRead(pins[0]);
   digitalWrite(pins[1], !trigger);
 
   json_output.water_sensor_trigger = trigger;
-}, new uint[]{ 27, 35 });
+};
 
-vibs[1] = Module(vib_equipment, new uint[]{ 27, 35 });
-vibs[2] = Module(vib_equipment, new uint[]{ 27, 35 });
-vibs[3] = Module(vib_equipment, new uint[]{ 27, 35 });
+Module vibs[4];
+vibs[0] = Module(1000, vibClosure, new uint[]{ 27, 35 });
+vibs[1] = Module(1000, vibClosure, new uint[]{ 27, 35 });
+vibs[2] = Module(1000, vibClosure, new uint[]{ 27, 35 });
+vibs[3] = Module(1000, vibClosure, new uint[]{ 27, 35 });
 
 Module soil_timer = Module(3000, [](uint* pin){
   json_output.soil_moisture = analogRead(*pin);
