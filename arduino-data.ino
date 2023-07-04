@@ -1,15 +1,18 @@
+// 0 - equipment, 1 - laundry, 2 - kitchen, 3 - livingRoom
+
 #include <OneWire.h>
 #include <DHT.h>
 #include <DallasTemperature.h>
 
 using uint = unsigned int;
 
-DHT dht(29, DHT22);  
 OneWire oneWire(23);
 DallasTemperature sensors(&oneWire);
 int deviceCount = 0;
 
 struct Module{
+  Module() = default;
+
   Module(unsigned long delay, void (*callback)(uint*), uint* pins) : 
     delay(delay), callback(callback), pins(pins){}
 
@@ -58,35 +61,41 @@ struct{
   }
 } json_output;
 
+auto tempClosure = [](uint dhtPin) {
+  bool stable{};
+  DHT dht(dhtPin, DHT22);  
+
+  return [stable, dht](uint* pins) mutable{
+    float humidity = dht.readHumidity();
+    float temperature = dht.computeHeatIndex(dht.readTemperature(), humidity, false);
+    float target = 20.0f, range = 3.0f;
+
+    if (abs(temperature - target) >= range){
+      stable = false;
+    }
+
+    if (!stable){
+      if (temperature - target < -0.25f){
+        digitalWrite(pins[0], HIGH);
+        digitalWrite(pins[1], LOW);
+      }
+      else if (temperature - target > 0.25f){
+        digitalWrite(pins[0], LOW);
+        digitalWrite(pins[1], HIGH);
+      }
+      else{
+        digitalWrite(pins[0], HIGH);
+        digitalWrite(pins[1], HIGH);
+        stable = true;
+      }
+    }
+
+    json_output.dht22_humidity = humidity;
+    json_output.dht22_temperature = temperature;
+  };
+};
 
 Module temp_equipment = Module(3000, [](uint* pins){
-  float humidity = dht.readHumidity();
-  float temperature = dht.computeHeatIndex(dht.readTemperature(), humidity, false);
-  static bool stable = false;
-  float target = 20.0f, range = 3.0f;
-
-  if (abs(temperature - target) >= range){
-    stable = false;
-  }
-
-  if (!stable){
-    if (temperature - target < -0.25f){
-      digitalWrite(pins[0], HIGH);
-      digitalWrite(pins[1], LOW);
-    }
-    else if (temperature - target > 0.25f){
-      digitalWrite(pins[0], LOW);
-      digitalWrite(pins[1], HIGH);
-    }
-    else{
-      digitalWrite(pins[0], HIGH);
-      digitalWrite(pins[1], HIGH);
-      stable = true;
-    }
-  }
-
-  json_output.dht22_humidity = humidity;
-  json_output.dht22_temperature = temperature;
 }, new uint{ 15, 14 });
 
 Module temp_laundry(temp_equipment, new uint{ 15, 14 });
@@ -124,22 +133,25 @@ Module ds18b20_timer = Module(5000, [](uint*){
   }
 }, nullptr);
 
-Module vib_equipment = Module(1000, [](uint* pins){
+Module vibs[4];
+vibs[0] = Module(1000, [](uint* pins){
   bool trigger = digitalRead(pins[0]);
   digitalWrite(pins[1], !trigger);
 
   json_output.water_sensor_trigger = trigger;
 }, new uint[]{ 27, 35 });
 
-Module vib_laundry(vib_equipment, new uint[]{ 27, 35 });
-Module vib_kitchen(vib_equipment, new uint[]{ 27, 35 });
-Module vib_livingRoom(vib_equipment, new uint[]{ 27, 35 });
+vibs[1] = Module(vib_equipment, new uint[]{ 27, 35 });
+vibs[2] = Module(vib_equipment, new uint[]{ 27, 35 });
+vibs[3] = Module(vib_equipment, new uint[]{ 27, 35 });
 
 Module soil_timer = Module(3000, [](uint* pin){
   json_output.soil_moisture = analogRead(*pin);
 }, new uint{ A14 });
 
 void pinInit(){
+  for (auto pins : vibs)
+    pinMode(pins[1], OUTPUT);
   pinMode(HCSR_PIN, INPUT);
   pinMode(SW_PIN, INPUT);
   pinMode(FAN_PIN, OUTPUT);
