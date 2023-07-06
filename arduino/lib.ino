@@ -1,10 +1,10 @@
 #include "lib.h"
 
 Module::Module(unsigned long delay, void (*callback)(uint*, uint), uint* pins, uint id) :
-  delay(delay), callback(callback), pins(pins){}
+  delay(delay), callback(callback), pins(pins), id(id){}
 
 Module::Module(unsigned long delay, uint* pins, uint id) :
-  delay(delay), pins(pins){}
+  delay(delay), pins(pins), id(id){}
 
 void Module::execute(){
   unsigned int curr = millis();
@@ -13,14 +13,6 @@ void Module::execute(){
 
 virtual void Module::handler(){
   callback(pins, id);
-}
-
-void Module::getPin(int idx){
-  return pins[idx];
-}
-
-void Module::getId(){
-  return id;
 }
 
 String JsonFormat::to_string(){

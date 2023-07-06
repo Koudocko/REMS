@@ -8,7 +8,7 @@ struct TempModule : Module{
   TempModule() = default;
 
   TempModule(unsigned long delay, void (*callback)(uint*, uint, DHT&, bool), uint* pins, uint id)
-    : Module(delay, pins, id), dht(pins[2], DHT22){
+    : Module(delay, pins, id), callback(callback), dht(pins[2], DHT22){
     dht.begin();
   }
 
@@ -20,7 +20,7 @@ private:
   DHT dht;
   bool stable{};
   void (*callback)(uint*, uint, DHT&, bool);
-}
+};
 
 auto tempClosure = [](uint* pins, uint id, DHT& dht, bool stable){
   float humidity = dht.readHumidity();

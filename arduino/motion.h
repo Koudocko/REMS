@@ -3,23 +3,34 @@
 
 #include "lib.h"
 
-auto motionClosure = []{
+struct MotionModule : Module{
+  MotionModule() = default;
+
+  MotionModule(unsigned long delay, void (*callback)(uint*, uint, bool), uint* pins, uint id)
+    : Module(delay, pins, id), callback(callback){}
+
+  void handler(){
+    callback(pins, id, motion);
+  }
+
+private:
   bool motion{};
+  void (*callback)(uint*, uint, bool);
+};
 
-  return [motion](uint* pin, uint id) mutable{
-    jsonOutput.motion_detected[id] = motion;
+auto motionClosure = [](uint* pin, uint id, bool motion){
+  jsonOutput.motion_detected[id] = motion;
 
-    if (digitalRead(*pin)){
-      if (!motion){
-        motion = true;
-      }
+  if (digitalRead(*pin)){
+    if (!motion){
+      motion = true;
     }
-    else{
-      if (motion){
-        motion = false;
-      }
+  }
+  else{
+    if (motion){
+      motion = false;
     }
-  };
+  }
 };
 
 #endif

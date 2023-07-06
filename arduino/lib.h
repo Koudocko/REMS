@@ -6,15 +6,14 @@ using uint = unsigned int;
 struct Module{
   Module() = default;
   Module(unsigned long delay, void (*callback)(uint*, uint), uint* pins, uint id);
+  Module(unsigned long delay, uint* pins, uint id);
 
   void execute();
   virtual void handler();
 
-  uint getPin(int idx);
-  uint getId();
+  uint* pins{}, id{};
 
 private:
-  uint* pins{}, id{};
   unsigned long delay, last{};
   void (*callback)(uint*, uint);
 };
