@@ -3,9 +3,24 @@
 Module::Module(unsigned long delay, void (*callback)(uint*, uint), uint* pins, uint id) :
   delay(delay), callback(callback), pins(pins){}
 
+Module::Module(unsigned long delay, uint* pins, uint id) :
+  delay(delay), pins(pins){}
+
 void Module::execute(){
   unsigned int curr = millis();
-  this->last = curr - this->last >= delay ? (callback(pins, id), curr) : this->last;
+  last = curr - last >= delay ? (callback(pins, id), curr) : last;
+}
+
+virtual void Module::handler(){
+  callback(pins, id);
+}
+
+void Module::getPin(int idx){
+  return pins[idx];
+}
+
+void Module::getId(){
+  return id;
 }
 
 String JsonFormat::to_string(){

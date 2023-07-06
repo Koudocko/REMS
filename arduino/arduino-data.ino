@@ -48,11 +48,11 @@ void modInit(){
 
 void pinInit(){
   for (auto mod : vibs)
-    pinMode(mod.pins[1], OUTPUT);
+    pinMode(mod.getPin(1), OUTPUT);
 
   for (auto mod : temps){
-    pinMode(mod.pins[0], OUTPUT);
-    pinMode(mod.pins[1], OUTPUT);
+    pinMode(mod.getPin(0), OUTPUT);
+    pinMode(mod.getPin(1), OUTPUT);
   }
 
   pinMode(16, OUTPUT);
