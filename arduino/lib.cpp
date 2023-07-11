@@ -8,7 +8,7 @@ Module::Module(unsigned long delay, uint* pins, uint id) :
 
 void Module::execute(){
   unsigned int curr = millis();
-  last = curr - last >= delay ? (callback(pins, id), curr) : last;
+  last = curr - last >= delay ? (handler(), curr) : last;
 }
 
 virtual void Module::handler(){
@@ -29,7 +29,7 @@ String JsonFormat::to_string(){
   json += "\t\"dht22_humidity\": [";
   for (int i = 0; i < 4; ++i){
     json += dht22_humidity[i];
-    if (i < 2)
+    if (i < 3)
       json += ", ";
   }
   json += "],\n";
@@ -37,7 +37,7 @@ String JsonFormat::to_string(){
   json += "\t\"dht22_temperature\": [";
   for (int i = 0; i < 4; ++i){
     json += dht22_temperature[i];
-    if (i < 2)
+    if (i < 3)
       json += ", ";
   }
   json += "],\n";
@@ -45,7 +45,7 @@ String JsonFormat::to_string(){
   json += "\t\"motion_detected\": [";
   for (int i = 0; i < 4; ++i){
     json += motion_detected[i];
-    if (i < 2)
+    if (i < 3)
       json += ", ";
   }
   json += "],\n";
@@ -53,7 +53,7 @@ String JsonFormat::to_string(){
   json += "\t\"water_sensor_trigger\": [";
   for (int i = 0; i < 4; ++i){
     json += water_sensor_trigger[i];
-    if (i < 2)
+    if (i < 3)
       json += ", ";
   }
   json += "],\n";

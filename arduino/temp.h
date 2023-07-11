@@ -47,8 +47,10 @@ auto tempClosure = [](uint* pins, uint id, DHT& dht, bool stable){
     }
   }
 
-  jsonOutput.dht22_humidity[id] = humidity;
-  jsonOutput.dht22_temperature[id] = temperature;
+  if (!isnan(humidity))
+    jsonOutput.dht22_humidity[id] = humidity;
+  if (!isnan(temperature))
+    jsonOutput.dht22_temperature[id] = temperature;
 };
 
 #endif
