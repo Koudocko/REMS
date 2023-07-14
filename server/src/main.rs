@@ -1,0 +1,121 @@
+use std::{
+    io::prelude::*,
+    sync::{Mutex, Arc},
+    fs::{OpenOptions, File}, net::SocketAddr,
+};
+use serde_json::json;
+use serde::{Deserialize, Serialize};
+use chrono::Local;
+use tokio::{net::{TcpStream, TcpListener}, io::{AsyncReadExt, AsyncWriteExt}};
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Package{
+    pub id: u8,
+    pub header: String,
+    pub payload: String
+}
+
+const SOCKET: &str = "127.0.0.1:7878";
+
+fn log_activity(file: &Arc<Mutex<File>>, msg: String){
+    let time = Local::now().format("[%Y-%m-%d %H:%M:%S]");
+    file.lock().unwrap().write_all(format!("{time} - {msg}\n\n").as_bytes()).unwrap();
+    println!("{time} - {msg}\n");
+}
+
+fn handle_connection(id: &mut String, request: Package)-> Package{
+    let mut header = String::from("GOOD");
+
+    let payload = match request.header.as_str(){
+        "SET_ID" =>{
+            String::new()
+        }
+        _ =>{
+            String::new()
+        }
+    };
+
+    Package{ id: request.id, header, payload }
+}
+
+async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file_handle: Arc<Mutex<File>>){
+    let mut buf = [0_u8; 4096];
+    let mut id = String::new();
+
+    loop{
+        match stream.read(&mut buf).await{
+            Ok(0) =>{
+                log_activity(&file_handle, format!("CONNECTION TERMINATED NORMALLY || With Address: {}, ID: {};", 
+                    addr.to_string(),
+                    id));
+                return;
+            }
+            Ok(_) =>{
+                let mut response = Package{
+                    id: 0,
+                    header: String::from("BAD"),
+                    payload: json!({ "error": "Request body format is ill-formed!" }).to_string(),
+                };
+
+                if let Some(package_end) = buf.iter().position(|x| *x == b'\n'){
+                    if let Ok(request) = serde_json::from_slice::<Package>(&buf[..package_end]){
+                        log_activity(&file_handle, format!("INCOMING REQUEST || From Address: {}, ID: {}, Header: {}, Payload: {:?};", 
+                            addr.to_string(),
+                            id, 
+                            request.header, 
+                            request.payload));
+                        response = handle_connection(&mut id, request);
+                    }
+                }
+
+                let mut response_bytes = serde_json::to_vec(&response).unwrap();
+                response_bytes.push(b'\n');
+
+                if stream.write_all(&response_bytes).await.is_ok(){
+                    log_activity(&file_handle, format!("OUTGOING RESPONSE SENT || To Address: {}, ID: {}, Header: {}, Payload: {:?};", 
+                        addr.to_string(),
+                        id,
+                        response.header, 
+                        response.payload));
+                }
+                else{
+                    log_activity(&file_handle, format!("OUTGOING RESPONSE FAILED || To Address: {}, ID: {}, Header: {}, Payload: {:?};", 
+                        addr.to_string(),
+                        id,
+                        response.header, 
+                        response.payload));
+                }
+            }
+            Err(_) =>{
+                log_activity(&file_handle, format!("CONNECTION TERMINATED ABNORMALLY || With Address: {}, ID: {};", 
+                    addr.to_string(),
+                    id));
+                return;
+            }
+        }
+    }
+}
+
+#[tokio::main]
+async fn main(){
+    let file = Arc::new(Mutex::new(OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("/rems/logs/traffic.log")
+        .unwrap()));
+
+    let listener = TcpListener::bind(SOCKET).await.unwrap();
+
+    loop{
+        let file_handle = Arc::clone(&file);
+
+        if let Ok((stream, addr)) = listener.accept().await{
+            log_activity(&file, format!("CONNECTION ESTABLISHED || With Address: {};", 
+                stream.peer_addr().unwrap().to_string()));
+            tokio::spawn(check_connection(stream, addr, file_handle));
+        }
+        else{
+            println!("FAILED TO ESTABLISH CONNECTION WITH CLIENT!");
+        }
+    }
+}
