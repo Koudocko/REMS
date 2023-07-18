@@ -33,17 +33,17 @@ TempModule temps[4]{
 };
 MotionModule motions[4]{
   MotionModule(1000, motionClosure, new uint{30}, 0),
-  MotionModule(1000, motionClosure, new uint{32}, 0),
-  MotionModule(1000, motionClosure, new uint{34}, 0),
-  MotionModule(1000, motionClosure, new uint{36}, 0)
+  MotionModule(1000, motionClosure, new uint{32}, 1),
+  MotionModule(1000, motionClosure, new uint{34}, 2),
+  MotionModule(1000, motionClosure, new uint{36}, 3)
 };
 Module vibs[4]{
-  Module(1000, vibClosure, new uint[2]{ 23, 35 }, 0),
-  Module(1000, vibClosure, new uint[2]{ 25, 35 }, 0),
-  Module(1000, vibClosure, new uint[2]{ 27, 35 }, 0),
-  Module(1000, vibClosure, new uint[2]{ 29, 35 }, 0)
+  Module(10, vibClosure, new uint[2]{ 23, 35 }, 0),
+  Module(10, vibClosure, new uint[2]{ 25, 35 }, 1),
+  Module(10, vibClosure, new uint[2]{ 27, 35 }, 2),
+  Module(10, vibClosure, new uint[2]{ 29, 35 }, 3)
 };
-
+                                    
 JsonFormat jsonOutput;
 
 /*Module ds18b20_timer = Module(5000, [](uint*){
@@ -61,19 +61,31 @@ JsonFormat jsonOutput;
   jsonOutput.soil_moisture = analogRead(*pin);
 }, new uint{ A14 }, 0);*/
 
+
 void pinInit(){
-  for (auto mod : vibs)
-    pinMode(mod.pins[1], OUTPUT);
+  pinMode(35, OUTPUT);
+  pinMode(33, OUTPUT);
+  pinMode(37, OUTPUT);
+  pinMode(31, OUTPUT);
+  
+  for (auto mod : vibs){
+    pinMode(mod.pins[0], INPUT);
+    pinMode(mod.pins[1], OUTPUT); 
+  }
 
   for (auto mod : temps){
     pinMode(mod.pins[0], OUTPUT);
     pinMode(mod.pins[1], OUTPUT);
+    pinMode(mod.pins[2], INPUT);
+  }
+
+  for (auto mod : motions){
+    pinMode(mod.pins[0], INPUT);
   }
 
   pinMode(16, OUTPUT);
 }
 
-DHT dht(28, DHT22);
 
 void setup(void)
 {
@@ -81,7 +93,6 @@ void setup(void)
   Serial.begin(9600);
 
   pinInit();
-  dht.begin();
 
   /*while (!deviceCount){
     deviceCount = sensors.getDeviceCount();
@@ -95,11 +106,10 @@ void loop(void){
 
   for (auto mod : temps)
     mod.execute();
-
+    
   for (auto mod : motions)
     mod.execute();
 
-  digitalWrite(31, HIGH);
   Serial.print(jsonOutput.to_string());
 
   delay(10);
