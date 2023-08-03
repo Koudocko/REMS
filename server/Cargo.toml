@@ -1,5 +1,5 @@
 [package]
-name = "kms"
+name = "rems"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,3 +13,5 @@ chrono = "0.4.24"
 threadpool = "1.8.1"
 dotenvy = "0.15"
 regex = "1.7.1"
+prometheus = "0.13.3"
+prometheus_exporter ="0.8.5"

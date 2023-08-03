@@ -7,6 +7,9 @@ use serde_json::json;
 use serde::{Deserialize, Serialize};
 use chrono::Local;
 use tokio::{net::{TcpStream, TcpListener}, io::{AsyncReadExt, AsyncWriteExt}};
+use commands::*;
+
+mod commands;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Package{
@@ -28,11 +31,37 @@ fn handle_connection(id: &mut String, request: Package)-> Package{
 
     let payload = match request.header.as_str(){
         "SET_ID" =>{
-            String::new()
+            match set_id(request.payload){
+                Ok(residence_id) =>{
+                    *id = residence_id;
+                    String::new()
+                }
+                Err("INVALID_FORMAT") =>{
+                    header = String::from("BAD");
+                    json!({ "error": "Request body format is ill-formed!" }).to_string()
+                }
+                _ => String::new(),
+            }
         }
-        _ =>{
-            String::new()
+        "UPDATE_DATA" =>{
+            match deserialize_data(request.payload){
+                Ok(residence_data) =>{
+                    if update_data(id.to_owned(), residence_data).is_ok(){
+                        String::new()
+                    }
+                    else{
+                        header = String::from("BAD");
+                        json!({ "error": "Error updating prometheus database!" }).to_string()
+                    }
+                }
+                Err("INVALID_FORMAT") =>{
+                    header = String::from("BAD");
+                    json!({ "error": "Request body format is ill-formed!" }).to_string()
+                }
+                _ => String::new(),
+            }
         }
+        _ => String::new(),
     };
 
     Package{ id: request.id, header, payload }
@@ -103,6 +132,9 @@ async fn main(){
         .append(true)
         .open("/rems/logs/traffic.log")
         .unwrap()));
+
+    let socket = "127.0.0.1:7878".parse().unwrap();
+    prometheus_exporter::start(socket).expect("Failed to connect to prometheus via 127.0.0.1:7878!");
 
     let listener = TcpListener::bind(SOCKET).await.unwrap();
 
