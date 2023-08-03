@@ -8,8 +8,6 @@ use std::{
 };
 use std::error::Error;
 
-static SOCKET: &'static str = "127.0.0.1:7878";
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Package{
     pub header: String,
@@ -40,34 +38,40 @@ pub fn write_stream(stream: &mut TcpStream, header: String, payload: String)-> R
 }
 
 fn main() {
-    if let Ok(mut stream) = TcpStream::connect(SOCKET){
-        if let Ok(env_var) = env::var("RESIDENT_ID"){
-            write_stream(
-                &mut stream,
-                String::from("SET_ID"),
-                json!({"residence_id": &env_var}).to_string()
-            ).is_ok();
+    if let Ok(server_ip) = env::var("SERVER_IP"){
+        if let Ok(mut stream) = TcpStream::connect(&server_ip){
+            if let Ok(residence_id) = env::var("RESIDENT_ID"){
+                write_stream(
+                    &mut stream,
+                    String::from("SET_ID"),
+                    json!({"residence_id": &residence_id}).to_string()
+                ).is_ok();
 
-            loop{
-                if let Ok(residence_data) = fs::read_to_string("/rems/readings/log1.txt"){
-                    if serde_json::from_str::<ResidenceData>(&residence_data).is_ok(){
-                        write_stream(
-                            &mut stream,
-                            String::from("UPDATE_DATA"),
-                            residence_data
-                        ).is_ok();
+                loop{
+                    if let Ok(residence_data) = fs::read_to_string("/rems/readings/log1.txt"){
+                        if serde_json::from_str::<ResidenceData>(&residence_data).is_ok(){
+                            write_stream(
+                                &mut stream,
+                                String::from("UPDATE_DATA"),
+                                residence_data
+                            ).is_ok();
+                        }
+                    }
+                    else{
+                        panic!("File at /rems/readings/log1.txt does not exist!");
                     }
                 }
-                else{
-                    panic!("File at /rems/readings/log1.txt does not exist!");
-                }
+            }
+            else{
+                panic!("Environment variable RESIDENT_ID is not set!");
             }
         }
         else{
-            panic!("Environment variable RESIDENT_ID is not set!");
+            panic!("Failed to connect to server via {}", server_ip);
         }
     }
     else{
-        panic!("Failed to connect to server via {}", SOCKET);
+        panic!("Environment variable SERVER_IP is not set!");
     }
+
 }
