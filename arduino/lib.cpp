@@ -42,17 +42,17 @@ String JsonFormat::to_string(){
   }
   json += "],\n";
 
-  json += "\t\"motion_sensor\": [";
+  json += "\t\"motion_detected\": [";
   for (int i = 0; i < 4; ++i){
-    json += motion_sensor[i];
+    json += motion_detected[i];
     if (i < 3)
       json += ", ";
   }
   json += "],\n";
 
-  json += "\t\"sound_sensor\": [";
+  json += "\t\"water_sensor_trigger\": [";
   for (int i = 0; i < 4; ++i){
-    json += sound_sensor[i];
+    json += water_sensor_trigger[i];
     if (i < 3)
       json += ", ";
   }

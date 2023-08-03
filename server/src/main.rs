@@ -13,6 +13,7 @@ mod commands;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Package{
+    pub id: u8,
     pub header: String,
     pub payload: String
 }
@@ -63,7 +64,7 @@ fn handle_connection(id: &mut String, request: Package)-> Package{
         _ => String::new(),
     };
 
-    Package{ header, payload }
+    Package{ id: request.id, header, payload }
 }
 
 async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file_handle: Arc<Mutex<File>>){
@@ -80,6 +81,7 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file_handle: 
             }
             Ok(_) =>{
                 let mut response = Package{
+                    id: 0,
                     header: String::from("BAD"),
                     payload: json!({ "error": "Request body format is ill-formed!" }).to_string(),
                 };
