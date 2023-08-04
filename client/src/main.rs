@@ -38,9 +38,9 @@ pub fn write_stream(stream: &mut TcpStream, header: String, payload: String)-> R
 }
 
 fn main() {
-    if let Ok(server_ip) = env::var("SERVER_IP"){
-        if let Ok(mut stream) = TcpStream::connect(&server_ip){
-            if let Ok(residence_id) = env::var("RESIDENT_ID"){
+    if let Ok(server_socket) = env::var("SERVER_SOCKET"){
+        if let Ok(mut stream) = TcpStream::connect(&server_socket){
+            if let Ok(residence_id) = env::var("RESIDENCE_ID"){
                 write_stream(
                     &mut stream,
                     String::from("SET_ID"),
@@ -63,15 +63,15 @@ fn main() {
                 }
             }
             else{
-                panic!("Environment variable RESIDENT_ID is not set!");
+                panic!("Environment variable RESIDENCE_ID is not set!");
             }
         }
         else{
-            panic!("Failed to connect to server via {}", server_ip);
+            panic!("Failed to connect to server via {}", server_socket);
         }
     }
     else{
-        panic!("Environment variable SERVER_IP is not set!");
+        panic!("Environment variable SERVER_SOCKET is not set!");
     }
 
 }

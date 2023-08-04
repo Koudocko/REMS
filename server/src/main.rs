@@ -18,11 +18,11 @@ pub struct Package{
     pub payload: String
 }
 
-const SOCKET: &str = "127.0.0.1:7878";
+const SOCKET: &str = "127.0.0.1:7879";
 
 fn log_activity(file: &Arc<Mutex<File>>, msg: String){
     let time = Local::now().format("[%Y-%m-%d %H:%M:%S]");
-    file.lock().unwrap().write_all(format!("{time} - {msg}\n\n").as_bytes()).unwrap();
+    // file.lock().unwrap().write_all(format!("{time} - {msg}\n\n").as_bytes()).unwrap();
     println!("{time} - {msg}\n");
 }
 
@@ -130,7 +130,7 @@ async fn main(){
     let file = Arc::new(Mutex::new(OpenOptions::new()
         .create(true)
         .append(true)
-        .open("/rems/logs/traffic.log")
+        .open("/home/tyler/log.txt")
         .unwrap()));
 
     let socket = "127.0.0.1:7878".parse().unwrap();
