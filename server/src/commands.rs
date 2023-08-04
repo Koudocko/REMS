@@ -1,4 +1,4 @@
-use prometheus::{register_counter, register_gauge, register_int_gauge};
+use prometheus_exporter::prometheus::{register_counter, register_gauge, register_int_gauge};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{error::Error, boxed::Box};
@@ -34,58 +34,58 @@ pub fn deserialize_data(payload: String)-> Eval<ResidenceData>{
 }
 
 pub fn update_data(id: String, residence_data: ResidenceData)-> Result<(), Box<dyn Error>>{
-    register_gauge!(id.clone() + "_ds18b20_temperature_0", "help")?
+    register_gauge!(id.clone() + "_ds18b20_temperature_0", "help").unwrap()
         .set(residence_data.ds18b20_temperature[0]);
-    register_gauge!(id.clone() + "_ds18b20_temperature_1", "help")?
+    register_gauge!(id.clone() + "_ds18b20_temperature_1", "help").unwrap()
         .set(residence_data.ds18b20_temperature[1]);
-    register_gauge!(id.clone() + "_ds18b20_temperature_2", "help")?
+    register_gauge!(id.clone() + "_ds18b20_temperature_2", "help").unwrap()
         .set(residence_data.ds18b20_temperature[2]);
 
-    register_gauge!(id.clone() + "_dht22_humidity_equipment", "help")?
+    register_gauge!(id.clone() + "_dht22_humidity_equipment", "help").unwrap()
         .set(residence_data.dht22_humidity[0]);
-    register_gauge!(id.clone() + "_dht22_humidity_laundry", "help")?
+    register_gauge!(id.clone() + "_dht22_humidity_laundry", "help").unwrap()
         .set(residence_data.dht22_humidity[1]);
-    register_gauge!(id.clone() + "_dht22_humidity_kitchen", "help")?
+    register_gauge!(id.clone() + "_dht22_humidity_kitchen", "help").unwrap()
         .set(residence_data.dht22_humidity[2]);
-    register_gauge!(id.clone() + "_dht22_humidity_living", "help")?
+    register_gauge!(id.clone() + "_dht22_humidity_living", "help").unwrap()
         .set(residence_data.dht22_humidity[3]);
 
-    register_gauge!(id.clone() + "_dht22_temperature_equipment", "help")?
+    register_gauge!(id.clone() + "_dht22_temperature_equipment", "help").unwrap()
         .set(residence_data.dht22_temperature[0]);
-    register_gauge!(id.clone() + "_dht22_temperature_laundry", "help")?
+    register_gauge!(id.clone() + "_dht22_temperature_laundry", "help").unwrap()
         .set(residence_data.dht22_temperature[1]);
-    register_gauge!(id.clone() + "_dht22_temperature_kitchen", "help")?
+    register_gauge!(id.clone() + "_dht22_temperature_kitchen", "help").unwrap()
         .set(residence_data.dht22_temperature[2]);
-    register_gauge!(id.clone() + "_dht22_temperature_living", "help")?
+    register_gauge!(id.clone() + "_dht22_temperature_living", "help").unwrap()
         .set(residence_data.dht22_temperature[3]);
 
     if residence_data.motion_sensor[0]{
-        register_counter!(id.clone() + "_motion_sensor_equipment", "help")?.inc();
+        register_counter!(id.clone() + "_motion_sensor_equipment", "help").unwrap().inc();
     }
     if residence_data.motion_sensor[1]{
-        register_counter!(id.clone() + "_motion_sensor_laundry", "help")?.inc();
+        register_counter!(id.clone() + "_motion_sensor_laundry", "help").unwrap().inc();
     }
     if residence_data.motion_sensor[2]{
-        register_counter!(id.clone() + "_motion_sensor_kitchen", "help")?.inc();
+        register_counter!(id.clone() + "_motion_sensor_kitchen", "help").unwrap().inc();
     }
     if residence_data.motion_sensor[3]{
-        register_counter!(id.clone() + "_motion_sensor_living", "help")?.inc();
+        register_counter!(id.clone() + "_motion_sensor_living", "help").unwrap().inc();
     }
 
     if residence_data.sound_sensor[0]{
-        register_counter!("sound_sensor_equipment", "help")?.inc();
+        register_counter!("sound_sensor_equipment", "help").unwrap().inc();
     }
     if residence_data.sound_sensor[1]{
-        register_counter!(id.clone() + "_sound_sensor_laundry", "help")?.inc();
+        register_counter!(id.clone() + "_sound_sensor_laundry", "help").unwrap().inc();
     }
     if residence_data.sound_sensor[2]{
-        register_counter!(id.clone() + "_sound_sensor_kitchen", "help")?.inc();
+        register_counter!(id.clone() + "_sound_sensor_kitchen", "help").unwrap().inc();
     }
     if residence_data.sound_sensor[3]{
-        register_counter!(id.clone() + "_sound_sensor_living", "help")?.inc();
+        register_counter!(id.clone() + "_sound_sensor_living", "help").unwrap().inc();
     }
 
-    register_int_gauge!(id.clone() + "_soil_moisture", "help")?
+    register_int_gauge!(id.clone() + "_soil_moisture", "help").unwrap()
         .set(residence_data.soil_moisture);
 
     Ok(())
