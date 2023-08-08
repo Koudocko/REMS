@@ -1,12 +1,13 @@
 use std::{
     io::prelude::*,
-    sync::{Mutex, Arc},
-    fs::{OpenOptions, File}, net::SocketAddr,
+    sync::Arc,
+    fs::{OpenOptions, File}, net::SocketAddr, collections::HashMap,
 };
+use prometheus::register_gauge;
 use serde_json::json;
 use serde::{Deserialize, Serialize};
 use chrono::Local;
-use tokio::{net::{TcpStream, TcpListener}, io::{AsyncReadExt, AsyncWriteExt}};
+use tokio::{net::{TcpStream, TcpListener}, io::{AsyncReadExt, AsyncWriteExt}, sync::Mutex};
 use commands::*;
 
 mod commands;
@@ -25,7 +26,7 @@ fn log_activity(file: &Arc<Mutex<File>>, msg: String){
     println!("{time} - {msg}\n");
 }
 
-fn handle_connection(id: &mut String, request: Package)-> Package{
+async fn handle_connection(id: &mut String, request: Package, metrics: &MetricsHandle)-> Package{
     let mut header = String::from("GOOD");
 
     let payload = match request.header.as_str(){
@@ -45,7 +46,7 @@ fn handle_connection(id: &mut String, request: Package)-> Package{
         "UPDATE_DATA" =>{
             match deserialize_data(request.payload){
                 Ok(residence_data) =>{
-                    if update_data(id.to_owned(), residence_data).is_ok(){
+                    if update_data(id.to_owned(), residence_data, metrics).await.is_ok(){
                         String::new()
                     }
                     else{
@@ -66,14 +67,14 @@ fn handle_connection(id: &mut String, request: Package)-> Package{
     Package{ header, payload }
 }
 
-async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file_handle: Arc<Mutex<File>>){
+async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: Arc<Mutex<File>>, metrics: MetricsHandle){
     let mut buf = [0_u8; 4096];
     let mut id = String::new();
 
     loop{
         match stream.read(&mut buf).await{
             Ok(0) =>{
-                log_activity(&file_handle, format!("CONNECTION TERMINATED NORMALLY || With Address: {}, ID: {};", 
+                log_activity(&file, format!("CONNECTION TERMINATED NORMALLY || With Address: {}, ID: {};", 
                     addr.to_string(),
                     id));
                 return;
@@ -86,12 +87,12 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file_handle: 
 
                 if let Some(package_end) = buf.iter().position(|x| *x == b'\n'){
                     if let Ok(request) = serde_json::from_slice::<Package>(&buf[..package_end]){
-                        log_activity(&file_handle, format!("INCOMING REQUEST || From Address: {}, ID: {}, Header: {}, Payload: {:?};", 
+                        log_activity(&file, format!("INCOMING REQUEST || From Address: {}, ID: {}, Header: {}, Payload: {:?};", 
                             addr.to_string(),
                             id, 
                             request.header, 
                             request.payload));
-                        response = handle_connection(&mut id, request);
+                        response = handle_connection(&mut id, request, &metrics).await;
                     }
                 }
 
@@ -99,14 +100,14 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file_handle: 
                 response_bytes.push(b'\n');
 
                 if stream.write_all(&response_bytes).await.is_ok(){
-                    log_activity(&file_handle, format!("OUTGOING RESPONSE SENT || To Address: {}, ID: {}, Header: {}, Payload: {:?};", 
+                    log_activity(&file, format!("OUTGOING RESPONSE SENT || To Address: {}, ID: {}, Header: {}, Payload: {:?};", 
                         addr.to_string(),
                         id,
                         response.header, 
                         response.payload));
                 }
                 else{
-                    log_activity(&file_handle, format!("OUTGOING RESPONSE FAILED || To Address: {}, ID: {}, Header: {}, Payload: {:?};", 
+                    log_activity(&file, format!("OUTGOING RESPONSE FAILED || To Address: {}, ID: {}, Header: {}, Payload: {:?};", 
                         addr.to_string(),
                         id,
                         response.header, 
@@ -114,7 +115,7 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file_handle: 
                 }
             }
             Err(_) =>{
-                log_activity(&file_handle, format!("CONNECTION TERMINATED ABNORMALLY || With Address: {}, ID: {};", 
+                log_activity(&file, format!("CONNECTION TERMINATED ABNORMALLY || With Address: {}, ID: {};", 
                     addr.to_string(),
                     id));
                 return;
@@ -131,18 +132,21 @@ async fn main(){
         .open("/home/tyler/log.txt")
         .unwrap()));
 
+    let metrics: MetricsHandle = Arc::new(Mutex::new(HashMap::new()));
+
     let socket = "127.0.0.1:7878".parse().unwrap();
     prometheus_exporter::start(socket).expect("Failed to connect to prometheus via 127.0.0.1:7878!");
 
     let listener = TcpListener::bind(SOCKET).await.unwrap();
 
     loop{
-        let file_handle = Arc::clone(&file);
+        let file = Arc::clone(&file);
+        let metrics = Arc::clone(&metrics);
 
         if let Ok((stream, addr)) = listener.accept().await{
             log_activity(&file, format!("CONNECTION ESTABLISHED || With Address: {};", 
                 stream.peer_addr().unwrap().to_string()));
-            tokio::spawn(check_connection(stream, addr, file_handle));
+            tokio::spawn(check_connection(stream, addr, file, metrics));
         }
         else{
             println!("FAILED TO ESTABLISH CONNECTION WITH CLIENT!");

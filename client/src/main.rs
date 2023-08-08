@@ -44,17 +44,20 @@ fn main() {
                 write_stream(
                     &mut stream,
                     String::from("SET_ID"),
-                    json!({"residence_id": &residence_id}).to_string()
-                ).is_ok();
+                    json!({
+                        "residence_id": &residence_id
+                    }).to_string()
+                ).unwrap();
 
                 loop{
-                    if let Ok(residence_data) = fs::read_to_string("/rems/readings/log1.txt"){
+                    std::thread::sleep(std::time::Duration::from_secs(3));
+                    if let Ok(residence_data) = fs::read_to_string("/home/tyler/example.txt"){
                         if serde_json::from_str::<ResidenceData>(&residence_data).is_ok(){
                             write_stream(
                                 &mut stream,
                                 String::from("UPDATE_DATA"),
                                 residence_data
-                            ).is_ok();
+                            ).unwrap();
                         }
                     }
                     else{
