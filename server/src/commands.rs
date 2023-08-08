@@ -1,4 +1,4 @@
-use prometheus::{core::{GenericGauge, AtomicF64, GenericCounter, AtomicI64}, IntGauge};
+use prometheus::{core::{GenericGauge, AtomicF64, GenericCounter}, IntGauge};
 use prometheus_exporter::prometheus::{register_counter, register_gauge, register_int_gauge};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

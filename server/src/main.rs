@@ -1,9 +1,7 @@
 use std::{
-    io::prelude::*,
     sync::Arc,
     fs::{OpenOptions, File}, net::SocketAddr, collections::HashMap,
 };
-use prometheus::register_gauge;
 use serde_json::json;
 use serde::{Deserialize, Serialize};
 use chrono::Local;
