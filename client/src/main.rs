@@ -38,6 +38,8 @@ pub fn write_stream(stream: &mut TcpStream, header: String, payload: String)-> R
 }
 
 fn main() {
+    dotenvy::dotenv().unwrap();
+
     if let Ok(server_socket) = env::var("SERVER_SOCKET"){
         if let Ok(mut stream) = TcpStream::connect(&server_socket){
             if let Ok(residence_id) = env::var("RESIDENCE_ID"){

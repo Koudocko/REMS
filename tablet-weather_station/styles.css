@@ -1,0 +1,94 @@
+:root{
+	--foreground: #D1C2E9;
+	--background: #1E2127;
+	--background-alt: #2E3137;
+}
+
+*{
+	color: white;
+	margin: 0;
+	padding: 0;
+}
+
+body{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	background-color: var(--background);
+}
+
+.main-table{
+  width: 50%;
+	height: 80vh;
+	background-color: var(--background-alt);
+	border-radius: 10px;
+}
+
+.flex-center{
+	height: 100%;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.flex-top{
+	height: 100%;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: top;
+}
+.flex-between{
+	height: 100%;
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#row-0{
+	height: 10%;
+}
+#row-0-col-0{
+	width: 100%;
+	height: 60%;
+	background-color: #f77d55ff;
+	border-radius: 7px;
+}
+
+#row-1{
+	height: 30%;
+}
+#row-1-col-0{
+	font-family: Arial;
+	font-size: 6em;
+}
+
+#row-3-col-0{
+	width: 40%;
+	height: 10%;
+	background-color: #f77d55ff;
+	border-radius: 10px;
+}
+
+.rows{
+	height: 12%;
+}
+
+.col-left{
+	font-size: 3em;
+	font-family: Arial;
+	padding-left: 5%;
+	color: white;
+}
+.col-right{
+	font-size: 3em;
+	font-family: Arial;
+	padding-right: 5%;
+	color: #B7B7B7;
+}
+
+.debug1{
+	/* background-color: green; */
+}
