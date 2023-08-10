@@ -15,6 +15,7 @@ body{
 	justify-content: center;
 	align-items: center;
 	height: 100vh;
+	box-sizing: border-box;
 	background-color: var(--background);
 }
 
@@ -23,6 +24,7 @@ body{
 	height: 80vh;
 	background-color: var(--background-alt);
 	border-radius: 10px;
+	z-index: 1;
 }
 
 .flex-center{
@@ -87,6 +89,14 @@ body{
 	font-family: Arial;
 	padding-right: 5%;
 	color: #B7B7B7;
+}
+
+#canvas{
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--background);
 }
 
 .debug1{
