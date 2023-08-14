@@ -125,96 +125,30 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: Arc<Mut
 
 #[tokio::main]
 async fn main(){
-    // let file = Arc::new(Mutex::new(OpenOptions::new()
-    //     .create(true)
-    //     .append(true)
-    //     .open("/home/tyler/log.txt")
-    //     .unwrap()));
+    let file = Arc::new(Mutex::new(OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("/home/tyler/log.txt")
+        .unwrap()));
 
-    // let metrics: MetricsHandle = Arc::new(Mutex::new(HashMap::new()));
+    let metrics: MetricsHandle = Arc::new(Mutex::new(HashMap::new()));
 
     let socket = "127.0.0.1:7878".parse().unwrap();
     prometheus_exporter::start(socket).expect("Failed to connect to prometheus via 127.0.0.1:7878!");
 
-    // let listener = TcpListener::bind(SOCKET).await.unwrap();
+    let listener = TcpListener::bind(SOCKET).await.unwrap();
 
-    // loop{
-    //     let file = Arc::clone(&file);
-    //     let metrics = Arc::clone(&metrics);
+    loop{
+        let file = Arc::clone(&file);
+        let metrics = Arc::clone(&metrics);
 
-    //     if let Ok((stream, addr)) = listener.accept().await{
-    //         log_activity(&file, format!("CONNECTION ESTABLISHED || With Address: {};", 
-    //             stream.peer_addr().unwrap().to_string()));
-    //         tokio::spawn(check_connection(stream, addr, file, metrics));
-    //     }
-    //     else{
-    //         println!("FAILED TO ESTABLISH CONNECTION WITH CLIENT!");
-    //     }
-    // }
-
-    let bearer_token = "glsa_SMNy2JM7lnhNTI34s56xpwoNMWNYeTC0_9ad1c23f";
-
-    let client = Client::new();
-
-    let response = client
-        .post("http://127.0.0.1:3000/api/folders")
-        .header("Accept", "application/json")
-        .header("Content-Type", "application/json")
-        .header("Authorization", format!("Bearer {}", bearer_token))
-        .json(&json!({
-            "title": "testfolder"
-        }))
-        .send().await.unwrap();
-
-        if response.status() == StatusCode::from_u16(200).unwrap(){
-            let folder_id = &response.json::<Value>().await.unwrap()["id"].as_i64().unwrap();
-
-            let response = client
-                .post("http://127.0.0.1:3000/api/dashboards/db")
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .header("Authorization", format!("Bearer {}", bearer_token))
-                .json(&json!({
-                    "dashboard": {
-                        "id": null,
-                        "uid": null,
-                        "title": "testdashboard",
-                        "timezone": "browser",
-                        "schemaVersion": 16,
-                        "version": 0,
-                        "refresh": "25s",
-                        "panels": [
-                            {
-                                "id": 1,
-                                "visualization": "time series",
-                                "type": "graph",
-                                "title": "residence_0_ds18b20_temperature",
-                                "targets": [
-                                    {
-                                        "refId": "ds18b20_temperature_0",
-                                        "expr": "residence_0_ds18b20_temperature_0"
-                                    },
-                                    {
-                                        "refId": "ds18b20_temperature_1",
-                                        "expr": "residence_0_ds18b20_temperature_1"
-                                    },
-                                    {
-                                        "refId": "ds18b20_temperature_avg",
-                                        "expr": "avg(residence_0_ds18b20_temperature_0 + residence_0_ds18b20_temperature_1)"
-                                    }
-                                ]
-                            },
-                        ]
-                    },
-                    "folderId": folder_id,
-                    "message": "Created dashboard",
-                    "overwrite": false
-                }))
-                .send().await.unwrap();
-
-            println!("Response status: {}", response.status());
-            println!("Response payload:\n{}", response.text().await.unwrap());
+        if let Ok((stream, addr)) = listener.accept().await{
+            log_activity(&file, format!("CONNECTION ESTABLISHED || With Address: {};", 
+                stream.peer_addr().unwrap().to_string()));
+            tokio::spawn(check_connection(stream, addr, file, metrics));
         }
-
-    loop{}
+        else{
+            println!("FAILED TO ESTABLISH CONNECTION WITH CLIENT!");
+        }
+    }
 }
