@@ -1,7 +1,5 @@
 ##!/bin/sh
 
-#// Install dependencies
-
 # Docker
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
@@ -26,15 +24,11 @@ sudo docker run \
 sudo docker pull grafana/grafana
 sudo docker run -d --name=grafana -p 3000:3000 grafana/grafana
 
-#// Install files
-# sudo mkdir -p /rems/readings
-# sudo mkdir -p /rems/commands
-#sudo touch /rems/readings/log0.txt
-#sudo touch /rems/readings/log1.txt
-#sudo chmod 777 /rems/readings
-#sudo cp rems_2_readings.py /rems/commands/rems_2_readings.py
-#sudo cp rems_2_readings.sh /rems/commands/rems_2_readings.sh
-#sudo crontab -l > cron_temp
-#echo "* * * * * python3 /rems/commands/rems_2_transfer.py"
-#sudo crontab cron_temp
-#sudo rm cron_temp
+# Rustup toolchain
+curl https://sh.rustup.rs -sSf | sh
+source ~/.bashrc
+
+# Install files
+sudo mkdir -p /rems/logs
+sudo touch /rems/readings/log.txt
+sudo chmod -R 777 /rems/readings
