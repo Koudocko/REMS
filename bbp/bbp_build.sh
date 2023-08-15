@@ -23,6 +23,7 @@ sudo docker run \
     --network bbp \
     --name bbp-server \
     -dp 7879:7879 \
+    -v $(pwd)/.env:/app/.env \
     bbp-server
 sudo docker run \
     --network bbp \
@@ -34,7 +35,7 @@ sudo docker run \
     --network bbp \
     --name=bbp-grafana \
     -dp 3000:3000 \
-    -v $(pwd)/custom.ini:/etc/grafana/custom.ini \
+    -v $(pwd)/grafana.ini:/etc/grafana.ini \
     grafana/grafana
 
 # Rustup toolchain
