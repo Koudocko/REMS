@@ -2,7 +2,7 @@ use prometheus::{core::{GenericGauge, AtomicF64, GenericCounter}, IntGauge};
 use prometheus_exporter::prometheus::{register_counter, register_gauge, register_int_gauge};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use std::{error::Error, boxed::Box, collections::HashMap, sync::Arc};
+use std::{env, error::Error, boxed::Box, collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
 use reqwest::{Client, StatusCode};
 
@@ -43,8 +43,8 @@ pub fn deserialize_data(payload: String)-> Eval<ResidenceData>{
     Err("INVALID_FORMAT")
 }
 
-async fn grafana_create(id: &str){
-    let bearer_token = "glsa_SMNy2JM7lnhNTI34s56xpwoNMWNYeTC0_9ad1c23f";
+async fn grafana_create(id: &str)-> Result<(), Box<dyn Error>>{
+    let bearer_token = env::var("API_TOKEN")?;
     let metrics = vec![
         vec!["ds18b20_temperature_0", "ds18b20_temperature_1", "ds18b20_temperature_2"],
         vec!["dht22_humidity_equipment", "dht22_humidity_laundry", "dht22_humidity_kitchen", "dht22_humidity_living"],
@@ -57,18 +57,17 @@ async fn grafana_create(id: &str){
     let client = Client::new();
 
     let response = client
-        .post("http://127.0.0.1:3000/api/folders")
+        .post("http://bbp-grafana:3000/api/folders")
         .header("Accept", "application/json")
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {}", bearer_token))
         .json(&json!({
             "title": id
         }))
-        .send().await.unwrap();
+        .send().await?;
 
     if response.status() == StatusCode::from_u16(200).unwrap(){
         let folder_id = &response.json::<Value>().await.unwrap()["id"].as_i64().unwrap();
-
 
         for sensors in metrics{
             let title = format!("{id}_{}", sensors[0].rsplit_once("_").unwrap().0);
@@ -106,17 +105,19 @@ async fn grafana_create(id: &str){
             }
 
             let response = client
-                .post("http://127.0.0.1:3000/api/dashboards/db")
+                .post("http://bbp-grafana:3000/api/dashboards/db")
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .header("Authorization", format!("Bearer {}", bearer_token))
                 .json(&json)
-                .send().await.unwrap();
+                .send().await?;
 
             println!("Response status: {}", response.status());
             println!("Response payload:\n{}", response.text().await.unwrap());
         }
     }
+
+    Ok(())
 }
 
 pub async fn update_data(id: String, residence_data: ResidenceData, metrics: &MetricsHandle)-> Result<(), Box<dyn Error>>{
@@ -248,7 +249,7 @@ pub async fn update_data(id: String, residence_data: ResidenceData, metrics: &Me
             PrometheusMetrics::IntGauge(register_int_gauge!(id.clone() + "_soil_moisture_0", "help")?)); 
     }
 
-    grafana_create(&id).await;
+    grafana_create(&id).await?;
 
     Ok(())
 }

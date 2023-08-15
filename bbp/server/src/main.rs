@@ -127,6 +127,8 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: FileHan
 
 #[tokio::main]
 async fn main(){
+    dotenvy::dotenv().unwrap();
+
     let file = Arc::new(Mutex::new(
         if let Ok(file) = OpenOptions::new()
             .create(true)

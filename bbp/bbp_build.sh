@@ -15,14 +15,27 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 sudo systemctl enable --now docker
 
 # Docker containers
+sudo docker network create bbp
 sudo docker pull prom/prometheus
-sudo docker run \
-    -d \
-    -p 7878:7878 \
-    -v prometheus.yml:/etc/prometheus/prometheus.yml \
-    prom/prometheus
 sudo docker pull grafana/grafana
-sudo docker run -d --name=grafana -p 3000:3000 grafana/grafana
+sudo docker build -t bbp-server . 
+sudo docker run \
+    --network bbp \
+    --name bbp-server \
+    -dp 7879:7879 \
+    bbp-server
+sudo docker run \
+    --network bbp \
+    -dp 7878:7878 \
+    -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \
+    --name bbp-prometheus \
+    prom/prometheus
+sudo docker run \
+    --network bbp \
+    --name=bbp-grafana \
+    -dp 3000:3000 \
+    -v $(pwd)/custom.ini:/etc/grafana/custom.ini \
+    grafana/grafana
 
 # Rustup toolchain
 curl https://sh.rustup.rs -sSf | sh
