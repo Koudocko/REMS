@@ -3,8 +3,8 @@
 HOST=192.168.3.132
 USER=tyler
 PASS=WEHRLE@$^*
-LOCALFILE=/rems/readings/log0.txt
-REMOTEPATH=/rems/readings/log0.txt
+LOCALFILE=/rems/readings/weather.txt
+REMOTEPATH=/rems/readings/weather.txt
 
 ftp -inv $HOST << EOF
 user $USER $PASS

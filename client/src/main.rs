@@ -53,7 +53,7 @@ fn main() {
 
                 loop{
                     std::thread::sleep(std::time::Duration::from_secs(3));
-                    if let Ok(residence_data) = fs::read_to_string("/home/tyler/example.txt"){
+                    if let Ok(residence_data) = fs::read_to_string("/rems/readings/residence.txt"){
                         if serde_json::from_str::<ResidenceData>(&residence_data).is_ok(){
                             write_stream(
                                 &mut stream,
@@ -63,7 +63,7 @@ fn main() {
                         }
                     }
                     else{
-                        panic!("File at /rems/readings/log1.txt does not exist!");
+                        panic!("File at /rems/readings/residence.txt does not exist!");
                     }
                 }
             }

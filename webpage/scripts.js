@@ -154,3 +154,16 @@ function animate() {
 
 createParticles();
 animate();
+
+
+// My code for getting server JSON
+function fetchJson(){
+    fetch('/home/tyler/example.json')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('name').textContent = data.name;
+            document.getElementById('age').textContent = data.age;
+            document.getElementById('location').textContent = data.location;
+        })
+        .catch(error => console.error('Error fetching JSON:', error));
+}

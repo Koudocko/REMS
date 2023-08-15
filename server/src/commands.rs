@@ -6,7 +6,6 @@ use std::{error::Error, boxed::Box, collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
 use reqwest::{Client, StatusCode};
 
-
 pub type Eval<T> = Result<T, &'static str>;
 pub type MetricsHandle = Arc<Mutex<HashMap<String, PrometheusMetrics>>>;
 

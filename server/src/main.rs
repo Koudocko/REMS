@@ -1,15 +1,17 @@
 use std::{
     sync::Arc,
-    fs::{OpenOptions, File}, net::SocketAddr, collections::HashMap, num::NonZeroU16,
+    fs::{OpenOptions, File}, net::SocketAddr, collections::HashMap, io::Write,
 };
-use serde_json::{json, Value};
+use local_ip_address::linux::local_ip;
+use serde_json::json;
 use serde::{Deserialize, Serialize};
 use chrono::Local;
 use tokio::{net::{TcpStream, TcpListener}, io::{AsyncReadExt, AsyncWriteExt}, sync::Mutex};
 use commands::*;
-use reqwest::{Client, StatusCode};
 
 mod commands;
+
+type FileHandle = Arc<Mutex<Option<File>>>;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Package{
@@ -17,11 +19,11 @@ pub struct Package{
     pub payload: String
 }
 
-const SOCKET: &str = "127.0.0.1:7879";
-
-fn log_activity(file: &Arc<Mutex<File>>, msg: String){
+async fn log_activity(file: &FileHandle, msg: String){
     let time = Local::now().format("[%Y-%m-%d %H:%M:%S]");
-    // file.lock().unwrap().write_all(format!("{time} - {msg}\n\n").as_bytes()).unwrap();
+    if let Some(file) = file.lock().await.as_mut(){
+        file.write_all(format!("{time} - {msg}\n\n").as_bytes()).unwrap();
+    }
     println!("{time} - {msg}\n");
 }
 
@@ -66,7 +68,7 @@ async fn handle_connection(id: &mut String, request: Package, metrics: &MetricsH
     Package{ header, payload }
 }
 
-async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: Arc<Mutex<File>>, metrics: MetricsHandle){
+async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: FileHandle, metrics: MetricsHandle){
     let mut buf = [0_u8; 4096];
     let mut id = String::new();
 
@@ -75,7 +77,7 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: Arc<Mut
             Ok(0) =>{
                 log_activity(&file, format!("CONNECTION TERMINATED NORMALLY || With Address: {}, ID: {};", 
                     addr.to_string(),
-                    id));
+                    id)).await;
                 return;
             }
             Ok(_) =>{
@@ -90,7 +92,7 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: Arc<Mut
                             addr.to_string(),
                             id, 
                             request.header, 
-                            request.payload));
+                            request.payload)).await;
                         response = handle_connection(&mut id, request, &metrics).await;
                     }
                 }
@@ -103,20 +105,20 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: Arc<Mut
                         addr.to_string(),
                         id,
                         response.header, 
-                        response.payload));
+                        response.payload)).await;
                 }
                 else{
                     log_activity(&file, format!("OUTGOING RESPONSE FAILED || To Address: {}, ID: {}, Header: {}, Payload: {:?};", 
                         addr.to_string(),
                         id,
                         response.header, 
-                        response.payload));
+                        response.payload)).await;
                 }
             }
             Err(_) =>{
                 log_activity(&file, format!("CONNECTION TERMINATED ABNORMALLY || With Address: {}, ID: {};", 
                     addr.to_string(),
-                    id));
+                    id)).await;
                 return;
             }
         }
@@ -125,18 +127,24 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: Arc<Mut
 
 #[tokio::main]
 async fn main(){
-    let file = Arc::new(Mutex::new(OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("/home/tyler/log.txt")
-        .unwrap()));
+    let file = Arc::new(Mutex::new(
+        if let Ok(file) = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open("/rems/logs/log.txt"){
+            Some(file)
+        }
+        else
+            { None }));
+
+    let ip = local_ip().unwrap().to_string();
 
     let metrics: MetricsHandle = Arc::new(Mutex::new(HashMap::new()));
 
-    let socket = "127.0.0.1:7878".parse().unwrap();
-    prometheus_exporter::start(socket).expect("Failed to connect to prometheus via 127.0.0.1:7878!");
+    prometheus_exporter::start((ip.clone() + ":7878").parse().unwrap())
+        .expect("Failed to connect to prometheus!");
 
-    let listener = TcpListener::bind(SOCKET).await.unwrap();
+    let listener = TcpListener::bind(ip + ":7879").await.unwrap();
 
     loop{
         let file = Arc::clone(&file);
@@ -144,7 +152,7 @@ async fn main(){
 
         if let Ok((stream, addr)) = listener.accept().await{
             log_activity(&file, format!("CONNECTION ESTABLISHED || With Address: {};", 
-                stream.peer_addr().unwrap().to_string()));
+                stream.peer_addr().unwrap().to_string())).await;
             tokio::spawn(check_connection(stream, addr, file, metrics));
         }
         else{
