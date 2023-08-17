@@ -27,15 +27,15 @@ sudo docker run \
     bbp-server
 sudo docker run \
     --network bbp \
+    --name bbp-prometheus \
     -dp 7878:7878 \
     -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \
-    --name bbp-prometheus \
     prom/prometheus
 sudo docker run \
     --network bbp \
     --name=bbp-grafana \
     -dp 3000:3000 \
-    -v $(pwd)/grafana.ini:/etc/grafana.ini \
+    -v $(pwd)/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml \
     grafana/grafana
 
 # Rustup toolchain
