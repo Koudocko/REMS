@@ -37,6 +37,9 @@ sudo docker run \
     -dp 3000:3000 \
     -v $(pwd)/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml \
     grafana/grafana
+read -p "Create service account with admin, add token, and enter Grafana API token (localhost:3000 > Administration > Service Accounts): " API_TOKEN
+echo "API_TOKEN=$API_TOKEN" > .env
+sudo docker restart bbp-server
 
 # Rustup toolchain
 curl https://sh.rustup.rs -sSf | sh
