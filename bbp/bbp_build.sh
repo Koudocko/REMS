@@ -47,5 +47,5 @@ source ~/.bashrc
 
 # Install files
 sudo mkdir -p /rems/logs
-sudo touch /rems/readings/log.txt
-sudo chmod -R 777 /rems/readings
+sudo touch /rems/logs/log.txt
+sudo chmod -R 755 /rems/logs
