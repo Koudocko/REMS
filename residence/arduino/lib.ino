@@ -11,8 +11,14 @@ void Module::execute(){
   last = curr - last >= delay ? (handler(), curr) : last;
 }
 
-virtual void Module::handler(){
+void Module::handler(){
   callback(pins, id);
+}
+
+bool bool2str(bool input){
+  if (input)
+    return String("true");
+  return String("false");
 }
 
 String JsonFormat::to_string(){
@@ -44,7 +50,7 @@ String JsonFormat::to_string(){
 
   json += "\t\"motion_detected\": [";
   for (int i = 0; i < 4; ++i){
-    json += motion_detected[i];
+    json += bool2str(motion_sensor[i]);
     if (i < 3)
       json += ", ";
   }
@@ -52,7 +58,7 @@ String JsonFormat::to_string(){
 
   json += "\t\"water_sensor_trigger\": [";
   for (int i = 0; i < 4; ++i){
-    json += water_sensor_trigger[i];
+    json += bool2str(sound_sensor[i]);
     if (i < 3)
       json += ", ";
   }

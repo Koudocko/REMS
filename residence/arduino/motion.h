@@ -19,7 +19,7 @@ private:
 };
 
 auto motionClosure = [](uint* pin, uint id, bool motion){
-  jsonOutput.motion_detected[id] = digitalRead(*pin);
+  jsonOutput.motion_sensor[id] = digitalRead(*pin);
 
   /*if (digitalRead(*pin)){
     if (!motion){

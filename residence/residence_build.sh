@@ -20,13 +20,17 @@ sudo touch /rems/readings/residence.txt
 sudo chmod -R 777 /rems/residence
 
 # Docker containers
-sudo docker build -t residence-client . 
+sudo docker build -t residence-client client 
+sudo docker build -t residence-arduino arduino 
 sudo docker run \
-    --network bbp \
     --name residence-client \
-    -dv $(pwd)/.env:/app/.env \
+    -dv $(pwd)/client/.env:/app/.env \
     -v /rems/readings/residence.txt:/rems/readings/residence.txt \
     residence-client
+sudo docker run \
+    --name residence-arduino \
+    --device=/dev/ttyACM0:/dev/ttyACM0 \
+    residence-arduino
 read -p "Input Residence ID (one word, no symbols except _ underscore): " RESIDENCE_ID
 read -p "Input BBP local server socket (IP:PORT): " SERVER_SOCKET
 echo -e "SERVER_SOCKET=$SERVER_SOCKET\nRESIDENCE_ID=$RESIDENCE_ID" > .env

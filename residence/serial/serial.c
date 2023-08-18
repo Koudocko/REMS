@@ -5,7 +5,7 @@
 #include <string.h>
 
 int main() {
-    int fd = open("/dev/ttyACM1", O_RDWR | O_NOCTTY | O_NONBLOCK);
+    int fd = open("/dev/ttyACM0", O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (fd == -1) {
         perror("Error opening serial port");
         return 1;

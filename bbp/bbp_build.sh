@@ -23,27 +23,26 @@ sudo chmod -R 777 /rems/logs
 sudo docker network create bbp
 sudo docker pull prom/prometheus
 sudo docker pull grafana/grafana
-sudo docker build -t bbp-server . 
+sudo docker build -t bbp-server server 
 sudo docker run \
     --network bbp \
     --name bbp-server \
     -dp 7879:7879 \
-    -v $(pwd)/.env:/app/.env \
+    -v $(pwd)/server/.env:/app/.env \
     -v /rems/logs/log.txt:/rems/logs/log.txt \
     bbp-server
 sudo docker run \
     --network bbp \
     --name bbp-prometheus \
     -dp 7878:7878 \
-    -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \
+    -v $(pwd)/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
     prom/prometheus
 sudo docker run \
     --network bbp \
     --name=bbp-grafana \
     -dp 3000:3000 \
-    -v $(pwd)/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml \
+    -v $(pwd)/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml \
     grafana/grafana
 read -p "Create service account with admin, add token, and enter Grafana API token (localhost:3000 > Administration > Service Accounts): " API_TOKEN
 echo "API_TOKEN=$API_TOKEN" > .env
 sudo docker restart bbp-server
-
