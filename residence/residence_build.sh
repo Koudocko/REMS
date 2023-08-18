@@ -22,6 +22,7 @@ sudo chmod -R 777 /rems/residence
 # Docker containers
 sudo docker build -t residence-client client 
 sudo docker build -t residence-arduino arduino 
+sudo docker build -t residence-serial serial 
 sudo docker run \
     --name residence-client \
     -dv $(pwd)/client/.env:/app/.env \
@@ -30,7 +31,13 @@ sudo docker run \
 sudo docker run \
     --name residence-arduino \
     --device=/dev/ttyACM0:/dev/ttyACM0 \
+    -d \
     residence-arduino
+sudo docker run \
+    --name residence-serial \
+    --device=/dev/ttyACM0:/dev/ttyACM0 \
+    -dv /rems/readings/residence.txt:/rems/readings/residence.txt \
+    residence-serial
 read -p "Input Residence ID (one word, no symbols except _ underscore): " RESIDENCE_ID
 read -p "Input BBP local server socket (IP:PORT): " SERVER_SOCKET
 echo -e "SERVER_SOCKET=$SERVER_SOCKET\nRESIDENCE_ID=$RESIDENCE_ID" > .env
