@@ -48,7 +48,7 @@ String JsonFormat::to_string(){
   }
   json += "],\n";
 
-  json += "\t\"motion_detected\": [";
+  json += "\t\"motion_sensor\": [";
   for (int i = 0; i < 4; ++i){
     json += bool2str(motion_sensor[i]);
     if (i < 3)
