@@ -1,13 +1,8 @@
 #!/bin/bash
 
-HOST=192.168.3.132
-USER=tyler
-PASS=WEHRLE@$^*
-LOCALFILE=/rems/readings/weather.txt
-REMOTEPATH=/rems/readings/weather.txt
-
+source .env
 ftp -inv $HOST << EOF
 user $USER $PASS
-put $LOCALFILE $REMOTEPATH
+put /rems/readings/weather.txt /rems/readings/weather.txt 
 quit
 EOF
