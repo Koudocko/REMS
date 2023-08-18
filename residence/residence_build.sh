@@ -17,7 +17,7 @@ sudo systemctl enable --now docker
 # Install files
 sudo mkdir -p /rems/readings
 sudo touch /rems/readings/residence.txt
-sudo chmod -R 777 /rems/residence
+sudo chmod -R 777 /rems/readings
 
 # Docker containers
 sudo docker build -t residence-client client 

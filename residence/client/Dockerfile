@@ -1,5 +1,5 @@
 FROM rust:latest
 WORKDIR /app
 COPY . .
-RUN cargo build --release --manifest-path=server/Cargo.toml
+RUN cargo build --release --manifest-path=client/Cargo.toml
 CMD ["./client/target/release/residence-client"]

@@ -1,4 +1,4 @@
-FROM bullseye-slim:latest
+FROM debian:latest
 WORKDIR /app
 COPY . .
 RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/usr/bin sh
