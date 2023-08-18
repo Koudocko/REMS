@@ -56,7 +56,7 @@ String JsonFormat::to_string(){
   }
   json += "],\n";
 
-  json += "\t\"water_sensor_trigger\": [";
+  json += "\t\"sound_sensor\": [";
   for (int i = 0; i < 4; ++i){
     json += bool2str(sound_sensor[i]);
     if (i < 3)
