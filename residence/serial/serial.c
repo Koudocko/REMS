@@ -22,6 +22,13 @@ int main() {
     options.c_cflag |= CS8;
     tcsetattr(fd, TCSANOW, &options);
 
+    options.c_cflag &= ~HUPCL; 
+    tcsetattr(fd, TCSANOW, &options);
+    usleep(2500000);  
+    options.c_cflag |= HUPCL;  
+    tcsetattr(fd, TCSANOW, &options);
+    usleep(2500000);  
+
     char buffer[4096];
     while (1){
         int bufferSize = 0;
@@ -54,6 +61,8 @@ int main() {
             fflush(log_fd);
             fclose(log_fd);
         }
+
+        usleep(1000);
     }
 
     close(fd);

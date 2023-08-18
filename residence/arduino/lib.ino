@@ -15,7 +15,7 @@ void Module::handler(){
   callback(pins, id);
 }
 
-bool bool2str(bool input){
+bool2str(bool input){
   if (input)
     return String("true");
   return String("false");
@@ -64,7 +64,7 @@ String JsonFormat::to_string(){
   }
   json += "],\n";
 
-  json += String("\t\"soil_moisture\": ") + soil_moisture + ",\n";
+  json += String("\t\"soil_moisture\": ") + soil_moisture + "\n";
 
   json += "}\n";
 
