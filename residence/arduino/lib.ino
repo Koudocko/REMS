@@ -15,7 +15,7 @@ void Module::handler(){
   callback(pins, id);
 }
 
-bool2str(bool input){
+String bool2str(bool input){
   if (input)
     return String("true");
   return String("false");
