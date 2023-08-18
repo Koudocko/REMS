@@ -3,15 +3,6 @@
 version = 3
 
 [[package]]
-name = "client"
-version = "0.1.0"
-dependencies = [
- "dotenvy",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "dotenvy"
 version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -39,6 +30,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "50f3b39ccfb720540debaa0164757101c08ecb8d326b15358ce76a62c7e85965"
 dependencies = [
  "proc-macro2",
+]
+
+[[package]]
+name = "residence-client"
+version = "0.1.0"
+dependencies = [
+ "dotenvy",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

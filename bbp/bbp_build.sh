@@ -1,4 +1,4 @@
-##!/bin/sh
+#!/bin/sh
 
 # Docker
 sudo apt-get update
@@ -14,6 +14,11 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 sudo systemctl enable --now docker
 
+# Install files
+sudo mkdir -p /rems/logs
+sudo touch /rems/logs/log.txt
+sudo chmod -R 777 /rems/logs
+
 # Docker containers
 sudo docker network create bbp
 sudo docker pull prom/prometheus
@@ -24,6 +29,7 @@ sudo docker run \
     --name bbp-server \
     -dp 7879:7879 \
     -v $(pwd)/.env:/app/.env \
+    -v /rems/logs/log.txt:/rems/logs/log.txt \
     bbp-server
 sudo docker run \
     --network bbp \
@@ -41,11 +47,3 @@ read -p "Create service account with admin, add token, and enter Grafana API tok
 echo "API_TOKEN=$API_TOKEN" > .env
 sudo docker restart bbp-server
 
-# Rustup toolchain
-curl https://sh.rustup.rs -sSf | sh
-source ~/.bashrc
-
-# Install files
-sudo mkdir -p /rems/logs
-sudo touch /rems/logs/log.txt
-sudo chmod -R 755 /rems/logs
