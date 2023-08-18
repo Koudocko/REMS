@@ -129,15 +129,15 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: FileHan
 async fn main(){
     dotenvy::dotenv().unwrap();
 
-    let file = Arc::new(Mutex::new(
-        if let Ok(file) = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open("/rems/logs/log.txt"){
-            Some(file)
-        }
-        else
-            { None }));
+    let file = Arc::new(Mutex::new(None));
+        // if let Ok(file) = OpenOptions::new()
+        //     .create(true)
+        //     .append(true)
+        //     .open("/rems/logs/log.txt"){
+        //     Some(file)
+        // }
+        // else
+        //     { None }));
 
     let ip = local_ip().unwrap().to_string();
 
