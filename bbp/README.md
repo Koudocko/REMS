@@ -4,10 +4,10 @@
 The BBP directory is composed by three sub directories, **grafana**, **prometheus**, and **server**.
 
 ### Grafana
-The only file in here is a configuration file called **datasource.yml** which sets the default datasource to prometheus and to point to the Prometheus server on the network via **http://bbp-prometheus:7878**
+The only file in here is a configuration file called **datasource.yml** which sets the default datasource to prometheus and to point to the Prometheus server on the network via **http://bbp-prometheus:7878**.
 
 ### Prometheus
-Like Grafana, there is only one configuration file in here for Prometheus called **prometheus.yml** which sets Prometheus to scrape from **bbp-server:7878**
+Like Grafana, there is only one configuration file in here for Prometheus called **prometheus.yml** which sets Prometheus to scrape from **bbp-server:7878**.
 
 ### Server
 Unlike the previous two directories, this directory contains an entire rust project along with a Dockerfile. The rust project contains all the source **.rs** files and the Dockerfile how to build those files into a container.

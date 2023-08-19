@@ -1,6 +1,6 @@
 use std::{
     sync::Arc,
-    fs::{OpenOptions, File}, net::SocketAddr, collections::HashMap, io::Write,
+    fs::File, net::SocketAddr, collections::HashMap, io::Write,
 };
 use local_ip_address::linux::local_ip;
 use serde_json::json;
@@ -13,6 +13,7 @@ mod commands;
 
 type FileHandle = Arc<Mutex<Option<File>>>;
 
+// JSON payload format
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Package{
     pub header: String,
