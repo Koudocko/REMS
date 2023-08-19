@@ -61,7 +61,7 @@ sudo docker run \
 
 # Obtain grafana API token from user via cli (can be edited in .env file) 
 read -p "Create service account with admin, add token, and enter Grafana API token (localhost:3000 > Administration > Service Accounts): " API_TOKEN
-echo "API_TOKEN=$API_TOKEN" > .env
+echo "API_TOKEN=$API_TOKEN" > server/.env
 
 # Restart server to use updated token
 sudo docker restart bbp-server
