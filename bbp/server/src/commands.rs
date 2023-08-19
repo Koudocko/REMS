@@ -7,8 +7,10 @@ use tokio::sync::Mutex;
 use reqwest::{Client, StatusCode};
 
 pub type Eval<T> = Result<T, &'static str>;
+// Manages runtime registered metrics to prevent program panic
 pub type MetricsHandle = Arc<Mutex<HashMap<String, PrometheusMetrics>>>;
 
+// Deserialized struct to store JSON payload data
 #[derive(Serialize, Deserialize)]
 pub struct ResidenceData{
     ds18b20_temperature: [f64; 3],
@@ -19,12 +21,14 @@ pub struct ResidenceData{
     soil_moisture: i64
 }
 
+// Static enum to hold all types of metrics needed in the global HashMap
 pub enum PrometheusMetrics{
     Counter(GenericCounter<AtomicF64>),
     Gauge(GenericGauge<AtomicF64>),
     IntGauge(IntGauge)
 }
 
+// Attempts to retrieve the residence id from the JSON payload
 pub fn set_id(payload: String)-> Eval<String>{
     if let Ok(payload) = serde_json::from_str::<Value>(&payload){
        if let Some(residence_id) = payload["residence_id"].as_str(){
@@ -35,6 +39,7 @@ pub fn set_id(payload: String)-> Eval<String>{
     Err("INVALID_FORMAT")
 }
 
+// Attempts to deserialize the JSON payload as a ResidenceData struct
 pub fn deserialize_data(payload: String)-> Eval<ResidenceData>{
     if let Ok(residence_data) = serde_json::from_str::<ResidenceData>(&payload){
         return Ok(residence_data);
@@ -43,6 +48,7 @@ pub fn deserialize_data(payload: String)-> Eval<ResidenceData>{
     Err("INVALID_FORMAT")
 }
 
+// Grafana API calls to create folders and dashboards for the metrics
 async fn grafana_create(id: &str)-> Result<(), Box<dyn Error>>{
     let bearer_token = env::var("API_TOKEN")?;
     let metrics = vec![
@@ -56,6 +62,7 @@ async fn grafana_create(id: &str)-> Result<(), Box<dyn Error>>{
 
     let client = Client::new();
 
+    // Create folder for residence
     let response = client
         .post("http://bbp-grafana:3000/api/folders")
         .header("Accept", "application/json")
@@ -66,6 +73,7 @@ async fn grafana_create(id: &str)-> Result<(), Box<dyn Error>>{
         }))
         .send().await?;
 
+    // If it does not exist, proceed to dashboards
     if response.status() == StatusCode::from_u16(200).unwrap(){
         let folder_id = &response.json::<Value>().await.unwrap()["id"].as_i64().unwrap();
 
@@ -96,6 +104,7 @@ async fn grafana_create(id: &str)-> Result<(), Box<dyn Error>>{
                 "overwrite": false
             });
 
+            // Add each sensor as a target for the dashboard
             let targets = json["dashboard"]["panels"][0]["targets"].as_array_mut().unwrap();
             for sensor in sensors{
                 targets.push(json!({
@@ -104,6 +113,7 @@ async fn grafana_create(id: &str)-> Result<(), Box<dyn Error>>{
                 }));
             }
 
+            // Create a dashboard for each metric set
             let response = client
                 .post("http://bbp-grafana:3000/api/dashboards/db")
                 .header("Accept", "application/json")
@@ -120,9 +130,11 @@ async fn grafana_create(id: &str)-> Result<(), Box<dyn Error>>{
     Ok(())
 }
 
+// A whole bunch of template data metrics to be written to prometheus using the deserialized data
 pub async fn update_data(id: String, residence_data: ResidenceData, metrics: &MetricsHandle)-> Result<(), Box<dyn Error>>{
     let mut metrics = metrics.lock().await;
 
+    // DS18B20 sensor metrics
     if let Some(PrometheusMetrics::Gauge(register)) = metrics.get(&(id.clone() + "_ds18b20_temperature_0"))
         { register.set(residence_data.ds18b20_temperature[0]); }
     else{ 
@@ -142,6 +154,7 @@ pub async fn update_data(id: String, residence_data: ResidenceData, metrics: &Me
             PrometheusMetrics::Gauge(register_gauge!(id.clone() + "_ds18b20_temperature_2", "help")?)); 
     }
 
+    // DHT22 humidity sensor metrics
     if let Some(PrometheusMetrics::Gauge(register)) = metrics.get(&(id.clone() + "_dht22_humidity_equipment"))
         { register.set(residence_data.dht22_humidity[0]); }
     else{ 
@@ -167,6 +180,7 @@ pub async fn update_data(id: String, residence_data: ResidenceData, metrics: &Me
             PrometheusMetrics::Gauge(register_gauge!(id.clone() + "_dht22_humidity_living", "help")?)); 
     }
 
+    // DHT22 temperature sensor metrics
     if let Some(PrometheusMetrics::Gauge(register)) = metrics.get(&(id.clone() + "_dht22_temperature_equipment"))
         { register.set(residence_data.dht22_temperature[0]); }
     else{ 
@@ -192,6 +206,7 @@ pub async fn update_data(id: String, residence_data: ResidenceData, metrics: &Me
             PrometheusMetrics::Gauge(register_gauge!(id.clone() + "_dht22_temperature_living", "help")?)); 
     }
 
+    // Motion sensor metrics
     if let Some(PrometheusMetrics::Counter(register)) = metrics.get(&(id.clone() + "_motion_sensor_equipment"))
         { if residence_data.motion_sensor[0] { register.inc(); }}
     else{ 
@@ -217,6 +232,7 @@ pub async fn update_data(id: String, residence_data: ResidenceData, metrics: &Me
             PrometheusMetrics::Counter(register_counter!(id.clone() + "_motion_sensor_living", "help")?)); 
     }
 
+    // Sound sensor metrics
     if let Some(PrometheusMetrics::Counter(register)) = metrics.get(&(id.clone() + "_sound_sensor_equipment"))
         { if residence_data.sound_sensor[0] { register.inc(); }}
     else{ 
@@ -242,6 +258,7 @@ pub async fn update_data(id: String, residence_data: ResidenceData, metrics: &Me
             PrometheusMetrics::Counter(register_counter!(id.clone() + "_sound_sensor_living", "help")?)); 
     }
 
+    // Soil moisture metrics
     if let Some(PrometheusMetrics::IntGauge(register)) = metrics.get(&(id.clone() + "_soil_moisture_0"))
         { register.set(residence_data.soil_moisture); }
     else{ 
@@ -249,6 +266,8 @@ pub async fn update_data(id: String, residence_data: ResidenceData, metrics: &Me
             PrometheusMetrics::IntGauge(register_int_gauge!(id.clone() + "_soil_moisture_0", "help")?)); 
     }
 
+    // If the residence id is not present in the grafana database, create a folder and set of
+    // dashboards which use the above metrics
     grafana_create(&id).await?;
 
     Ok(())
