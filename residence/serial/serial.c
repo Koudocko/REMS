@@ -5,12 +5,14 @@
 #include <string.h>
 
 int main() {
+    // Attach to the serial device
     int fd = open("/dev/ttyACM0", O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (fd == -1) {
         perror("Error opening serial port");
         return 1;
     }
 
+    // Set various flags to match arduino's serial communication protocol
     struct termios options;
     tcgetattr(fd, &options);
     cfsetispeed(&options, B9600);
@@ -22,6 +24,7 @@ int main() {
     options.c_cflag |= CS8;
     tcsetattr(fd, TCSANOW, &options);
 
+    // Reset the Arduino to sync the data stream (the IDE does this by default, but cli does not)
     options.c_cflag &= ~HUPCL; 
     tcsetattr(fd, TCSANOW, &options);
     usleep(2500000);  
@@ -29,11 +32,13 @@ int main() {
     tcsetattr(fd, TCSANOW, &options);
     usleep(2500000);  
 
+    // Extract data between two curly braces {} continuously and write it to a localized file
     char buffer[4096];
     while (1){
         int bufferSize = 0;
         char* mark = NULL;
 
+        // Find starting point
         while ((bufferSize = read(fd, buffer, sizeof(buffer)), 
             mark = (char*)memchr(buffer, '{', bufferSize)) == NULL){
             usleep(1000);
@@ -41,6 +46,7 @@ int main() {
 
         memmove(buffer, mark, &buffer[bufferSize] - mark);
 
+        // Find end point
         if ((mark = (char*)memchr(buffer, '}', bufferSize)) == NULL){
             int readSize = 0;
             while ((readSize = read(fd, buffer + bufferSize, sizeof(buffer) - bufferSize), 
@@ -50,11 +56,13 @@ int main() {
             }
         }
 
+        // Mark end of the JSON package
         bufferSize = (mark - buffer) + 1; 
         buffer[bufferSize] = '\0';
 
         printf("%s\n", buffer);
 
+        // Write the extracted JSON to the file
         FILE* log_fd = fopen("/rems/readings/residence.txt", "w");
         if (log_fd != NULL){
             fprintf(log_fd, "%s\n", buffer);

@@ -8,12 +8,14 @@ use std::{
 };
 use std::error::Error;
 
+// TCP package format
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Package{
     pub header: String,
     pub payload: String
 }
 
+// Format to equate to equivalent deserialized JSON
 #[derive(Serialize, Deserialize)]
 pub struct ResidenceData{
     ds18b20_temperature: [f64; 3],
@@ -24,6 +26,7 @@ pub struct ResidenceData{
     soil_moisture: i64
 }
 
+// Writes the package safely across the TCP stream
 pub fn write_stream(stream: &mut TcpStream, header: String, payload: String)-> Result<(), Box<dyn Error>>{
     let package = Package{
         header,
@@ -38,11 +41,14 @@ pub fn write_stream(stream: &mut TcpStream, header: String, payload: String)-> R
 }
 
 fn main() {
+    // Load .env file variables
     dotenvy::dotenv().unwrap();
 
+    // Checks that variables are present and viable
     if let Ok(server_socket) = env::var("SERVER_SOCKET"){
         if let Ok(mut stream) = TcpStream::connect(&server_socket){
             if let Ok(residence_id) = env::var("RESIDENCE_ID"){
+                // Initial set residence id request before providing sensor data
                 write_stream(
                     &mut stream,
                     String::from("SET_ID"),
@@ -51,9 +57,11 @@ fn main() {
                     }).to_string()
                 ).unwrap();
 
+                // Enter loop of readings from the sensor data file and sending it to BBP
                 loop{
                     std::thread::sleep(std::time::Duration::from_secs(3));
                     if let Ok(residence_data) = fs::read_to_string("/rems/readings/residence.txt"){
+                        // Ensures the JSON is valid before sending
                         if serde_json::from_str::<ResidenceData>(&residence_data).is_ok(){
                             write_stream(
                                 &mut stream,

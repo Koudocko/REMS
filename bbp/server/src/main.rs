@@ -143,6 +143,7 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: FileHan
 
 #[tokio::main]
 async fn main(){
+    // Load .env file variables
     dotenvy::dotenv().unwrap();
 
     // Commented out log file for space conservation
