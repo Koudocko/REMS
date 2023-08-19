@@ -19,6 +19,7 @@ pub struct Package{
     pub payload: String
 }
 
+// Log activity via stdout and optionally a log file
 async fn log_activity(file: &FileHandle, msg: String){
     let time = Local::now().format("[%Y-%m-%d %H:%M:%S]");
     if let Some(file) = file.lock().await.as_mut(){
@@ -27,10 +28,13 @@ async fn log_activity(file: &FileHandle, msg: String){
     println!("{time} - {msg}\n");
 }
 
+// Handle validated packege sent from client
 async fn handle_connection(id: &mut String, request: Package, metrics: &MetricsHandle)-> Package{
     let mut header = String::from("GOOD");
 
+    // List of valid headers the client can use
     let payload = match request.header.as_str(){
+        // Links a residence id with the TCP connection for later use
         "SET_ID" =>{
             match set_id(request.payload){
                 Ok(residence_id) =>{
@@ -44,9 +48,12 @@ async fn handle_connection(id: &mut String, request: Package, metrics: &MetricsH
                 _ => String::new(),
             }
         }
+        // Updates database with JSON provided by client 
         "UPDATE_DATA" =>{
+            // Deserialization check
             match deserialize_data(request.payload){
                 Ok(residence_data) =>{
+                    // Updates databse using now deserialized data
                     if update_data(id.to_owned(), residence_data, metrics).await.is_ok(){
                         String::new()
                     }
@@ -68,24 +75,30 @@ async fn handle_connection(id: &mut String, request: Package, metrics: &MetricsH
     Package{ header, payload }
 }
 
+// Validator for a client's incoming and outgoing packets
 async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: FileHandle, metrics: MetricsHandle){
     let mut buf = [0_u8; 4096];
     let mut id = String::new();
 
+    // Listen to connect client's requests
     loop{
         match stream.read(&mut buf).await{
+            // Ok(0): 0 bytes to read, client closed stream
             Ok(0) =>{
                 log_activity(&file, format!("CONNECTION TERMINATED NORMALLY || With Address: {}, ID: {};", 
                     addr.to_string(),
                     id)).await;
                 return;
             }
+            // Ok(_): bytes received to process
             Ok(_) =>{
+                // Default to ill-formed package layout
                 let mut response = Package{
                     header: String::from("BAD"),
                     payload: json!({ "error": "Request body format is ill-formed!" }).to_string(),
                 };
 
+                // Deserialize package into Package struct and handler request
                 if let Some(package_end) = buf.iter().position(|x| *x == b'\n'){
                     if let Ok(request) = serde_json::from_slice::<Package>(&buf[..package_end]){
                         log_activity(&file, format!("INCOMING REQUEST || From Address: {}, ID: {}, Header: {}, Payload: {:?};", 
@@ -100,6 +113,7 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: FileHan
                 let mut response_bytes = serde_json::to_vec(&response).unwrap();
                 response_bytes.push(b'\n');
 
+                // Respond to client's request accordingly
                 if stream.write_all(&response_bytes).await.is_ok(){
                     log_activity(&file, format!("OUTGOING RESPONSE SENT || To Address: {}, ID: {}, Header: {}, Payload: {:?};", 
                         addr.to_string(),
@@ -115,6 +129,7 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: FileHan
                         response.payload)).await;
                 }
             }
+            // Err(_): client terminated abnormally, connection closed
             Err(_) =>{
                 log_activity(&file, format!("CONNECTION TERMINATED ABNORMALLY || With Address: {}, ID: {};", 
                     addr.to_string(),
@@ -129,6 +144,7 @@ async fn check_connection(mut stream: TcpStream, addr: SocketAddr, file: FileHan
 async fn main(){
     dotenvy::dotenv().unwrap();
 
+    // Commented out log file for space conservation
     let file = Arc::new(Mutex::new(None));
         // if let Ok(file) = OpenOptions::new()
         //     .create(true)
@@ -143,11 +159,13 @@ async fn main(){
 
     let metrics: MetricsHandle = Arc::new(Mutex::new(HashMap::new()));
 
+    // Enable runtime prometheus exporter
     prometheus_exporter::start((ip.clone() + ":7878").parse().unwrap())
         .expect("Failed to connect to prometheus!");
 
     let listener = TcpListener::bind(ip + ":7879").await.unwrap();
 
+    // Main TCP listener loop
     loop{
         let file = Arc::clone(&file);
         let metrics = Arc::clone(&metrics);
