@@ -4,6 +4,7 @@
 #include "lib.h"
 #include <DHT.h>
 
+// Provides a temperature sensor specific implementation for the handler() when execute() is called
 struct TempModule : Module{
   TempModule() = default;
 
@@ -22,6 +23,7 @@ private:
   void (*callback)(uint*, uint, DHT&, bool);
 };
 
+// Data retrieval callback
 auto tempClosure = [](uint* pins, uint id, DHT& dht, bool stable){
   float humidity = dht.readHumidity();
   float temperature = dht.computeHeatIndex(dht.readTemperature(), humidity, false);

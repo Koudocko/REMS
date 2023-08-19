@@ -15,12 +15,14 @@ void Module::handler(){
   callback(pins, id);
 }
 
+// Stringify booleans for the client program
 String bool2str(bool input){
   if (input)
     return String("true");
   return String("false");
 }
 
+// Iterates through all of the instance's fields and converts them to valid JSON format 
 String JsonFormat::to_string(){
   String json = "{\n";
 

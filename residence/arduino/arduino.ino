@@ -25,18 +25,21 @@ OneWire oneWire(23);
 DallasTemperature sensors(&oneWire);
 int deviceCount = 0;
 
+// DHT22 sensors
 TempModule temps[4]{
   TempModule(3000, tempClosure, new uint[3]{ 15, 14, 22 }, 0),
   TempModule(3000, tempClosure, new uint[3]{ 15, 14, 24 }, 1),
   TempModule(3000, tempClosure, new uint[3]{ 15, 14, 26 }, 2),
   TempModule(3000, tempClosure, new uint[3]{ 15, 14, 28 }, 3)
 };
+// HCSR-505 sensors
 MotionModule motions[4]{
   MotionModule(1000, motionClosure, new uint{30}, 0),
   MotionModule(1000, motionClosure, new uint{32}, 1),
   MotionModule(1000, motionClosure, new uint{34}, 2),
   MotionModule(1000, motionClosure, new uint{36}, 3)
 };
+// DAOKI sound sensors 
 Module vibs[4]{
   Module(10, vibClosure, new uint[2]{ 23, 35 }, 0),
   Module(10, vibClosure, new uint[2]{ 25, 35 }, 1),
@@ -44,8 +47,10 @@ Module vibs[4]{
   Module(10, vibClosure, new uint[2]{ 29, 35 }, 3)
 };
                                     
+// Global instance of JsonFormat to store all sensor readings
 JsonFormat jsonOutput;
 
+// DS18B20 sensors (commented out until needed)
 /*Module ds18b20_timer = Module(5000, [](uint*){
   sensors.requestTemperatures(); 
   
@@ -61,24 +66,28 @@ JsonFormat jsonOutput;
   jsonOutput.soil_moisture = analogRead(*pin);
 }, new uint{ A14 }, 0);*/
 
-
+// Initialize every pin used as OUTPUT or INPUT
 void pinInit(){
+  // Was relay pins, subject to change
   pinMode(35, OUTPUT);
   pinMode(33, OUTPUT);
   pinMode(37, OUTPUT);
   pinMode(31, OUTPUT);
   
+  // Intialize DAOKI sound sensor pins 
   for (auto mod : vibs){
     pinMode(mod.pins[0], INPUT);
     pinMode(mod.pins[1], OUTPUT); 
   }
 
+  // Intialize DHT22 pins 
   for (auto mod : temps){
     pinMode(mod.pins[0], OUTPUT);
     pinMode(mod.pins[1], OUTPUT);
     pinMode(mod.pins[2], INPUT);
   }
 
+  // Initialze HCSR-505 pins
   for (auto mod : motions){
     pinMode(mod.pins[0], INPUT);
   }
@@ -87,20 +96,23 @@ void pinInit(){
 }
 
 
+// Program entry point, stage 1, passes to control to void loop(void) when done
 void setup(void)
 {
-  //sensors.begin();  
   Serial.begin(9600);
-
   pinInit();
 
+  // Initialize DS18B20 sensors
+  //sensors.begin();  
   /*while (!deviceCount){
     deviceCount = sensors.getDeviceCount();
     delay(1000);
   }*/
 }
 
+// Main driving loop
 void loop(void){
+  // Every execute statement retrieves data (if ready) and updates jsonOutput
   for (auto mod : vibs)
     mod.execute();
 
@@ -110,6 +122,7 @@ void loop(void){
   for (auto mod : motions)
     mod.execute();
 
+  // Send jsonOutput across the serial port
   Serial.print(jsonOutput.to_string());
 
   delay(10);
