@@ -1,17 +1,21 @@
 <!DOCTYPE html>
+<!-- Load static tag -->
 {% load static %}
 
 <html>
 	<head>
+		<!-- Link styles.css from /static -->
 		<link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	</head>
 	<body>
     <canvas id="canvas"></canvas>
+		<!-- Utilize jQuery with ajax-->
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 		<table class="main-table">
+			<!-- Top bar -->
 			<tr id="row-0">
 				<td class="debug1">
 					<div class="flex-top">
@@ -19,11 +23,13 @@
 					</div>
 				</td>
 			</tr>
+			<!-- Temperature row -->
 			<tr id="row-1">
 				<td class="debug1">
 					<div class="flex-center"><p id="temperature">NULL</p></div>
 				</td>
 			</tr>
+			<!-- AQI row -->
 			<tr id="row-2">
 				<td class="debug1">
 					<div class="flex-between">
@@ -32,6 +38,7 @@
 					</div>
 				</td>
 			</tr>
+			<!-- Middle bar -->
 			<tr class="rows">
 				<td class="debug1">
 					<div class="flex-center">
@@ -39,6 +46,7 @@
 					</div>
 				</td>
 			</tr>
+			<!-- Pressure row -->
 			<tr class="rows">
 				<td class="debug1">
 					<div class="flex-between">
@@ -47,6 +55,7 @@
 					</div>
 				</td>
 			</tr>
+			<!-- eCO2 row -->
 			<tr class="rows">
 				<td class="debug1">
 					<div class="flex-between">
@@ -55,6 +64,7 @@
 					</div>
 				</td>
 			</tr>
+			<!-- TVOC row -->
 			<tr class="rows">
 				<td class="debug1">
 					<div class="flex-between">
@@ -65,6 +75,7 @@
 			</tr>
 		</table>
 
+		<!-- Link scripts.js from /static -->
 		<script src="{% static 'js/scripts.js' %}"></script>
 	</body>
 </html>

@@ -19,7 +19,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Root endpoint of the server displays static and template files
     path('', views.home, name='home'),
+    # get_json endpoint is used by Ajax to update HTML with JSON
     path('get_json/', views.get_json, name='update_ui'),
 ]
 
