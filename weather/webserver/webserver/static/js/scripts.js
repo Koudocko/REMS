@@ -6,6 +6,8 @@
  *
  */
 
+document.write('<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>');
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
@@ -155,15 +157,17 @@ function animate() {
 createParticles();
 animate();
 
-
-// My code for getting server JSON
-function fetchJson(){
-    fetch('/home/tyler/example.json')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('name').textContent = data.name;
-            document.getElementById('age').textContent = data.age;
-            document.getElementById('location').textContent = data.location;
-        })
-        .catch(error => console.error('Error fetching JSON:', error));
+function updateUI() {
+    $.ajax({
+        url: '/get_json/',
+        dataType: 'json',
+        success: function(data) {
+            $('#temperature').text(data.temperature);
+            $('#pressure').text(data.pressure);
+            $('#eco2').text(data.co2);
+            $('#tvoc').text(data.tvoc);
+        }
+    });
 }
+
+setInterval(updateUI, 5000);

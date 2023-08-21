@@ -1,7 +1,9 @@
 <!DOCTYPE html>
+{% load static %}
+
 <html>
 	<head>
-		<link rel="stylesheet" href="styles.css">
+		<link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	</head>
@@ -62,6 +64,6 @@
 			</tr>
 		</table>
 
-    <script src="scripts.js"></script>
+		<script src="{% static 'js/scripts.js' %}"></script>
 	</body>
 </html>
