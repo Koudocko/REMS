@@ -3,6 +3,6 @@
 source .env
 ftp -inv $HOST << EOF
 user $USER $PASS
-put /rems/readings/weather.txt /rems/readings/weather.txt 
+put /rems/readings/weather.json /rems/readings/weather.json 
 quit
 EOF

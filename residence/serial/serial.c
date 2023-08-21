@@ -63,7 +63,7 @@ int main() {
         printf("%s\n", buffer);
 
         // Write the extracted JSON to the file
-        FILE* log_fd = fopen("/rems/readings/residence.txt", "w");
+        FILE* log_fd = fopen("/rems/readings/residence.json", "w");
         if (log_fd != NULL){
             fprintf(log_fd, "%s\n", buffer);
             fflush(log_fd);

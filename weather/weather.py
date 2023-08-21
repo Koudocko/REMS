@@ -15,7 +15,7 @@ except ImportError:
     from smbus import SMBus
 from bmp280 import BMP280
 
-log_path = "/rems/readings/weather.txt"
+log_path = "/rems/readings/weather.json"
 
 sgp30 = SGP30()
 gas = MICS6814()

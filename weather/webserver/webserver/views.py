@@ -12,10 +12,10 @@ def get_json(request):
     tvoc = data['data']['SGP30']['TVOC']
 
     context = {
-        'temperature': temperature,
-        'pressure': pressure,
-        'co2': co2,
-        'tvoc': tvoc,
+        'temperature': round(temperature, 1),
+        'pressure': round(pressure, 1),
+        'co2': round(co2, 1),
+        'tvoc': round(tvoc, 1),
     }
 
     return JsonResponse(context)

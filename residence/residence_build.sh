@@ -23,7 +23,7 @@ sudo systemctl enable --now docker
 
 # Install reading file and directory
 sudo mkdir -p /rems/readings
-sudo touch /rems/readings/residence.txt
+sudo touch /rems/readings/residence.json
 sudo chmod -R 777 /rems/readings
 
 ### Docker containers
@@ -37,7 +37,7 @@ sudo docker build -t residence-serial serial
 sudo docker run \
     --name residence-client \
     -dv $(pwd)/client/.env:/app/.env \
-    -v /rems/readings/residence.txt:/rems/readings/residence.txt \
+    -v /rems/readings/residence.json:/rems/readings/residence.json \
     residence-client
 
 # Arduino program uploader
@@ -51,7 +51,7 @@ sudo docker run \
 sudo docker run \
     --name residence-serial \
     --device=/dev/ttyACM0:/dev/ttyACM0 \
-    -dv /rems/readings/residence.txt:/rems/readings/residence.txt \
+    -dv /rems/readings/residence.json:/rems/readings/residence.json \
     residence-serial
 
 # Obtain residence id and BBP socket (an be edited in .env file)

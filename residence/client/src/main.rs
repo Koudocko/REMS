@@ -60,7 +60,7 @@ fn main() {
                 // Enter loop of readings from the sensor data file and sending it to BBP
                 loop{
                     std::thread::sleep(std::time::Duration::from_secs(3));
-                    if let Ok(residence_data) = fs::read_to_string("/rems/readings/residence.txt"){
+                    if let Ok(residence_data) = fs::read_to_string("/rems/readings/residence.json"){
                         // Ensures the JSON is valid before sending
                         if serde_json::from_str::<ResidenceData>(&residence_data).is_ok(){
                             write_stream(
@@ -71,7 +71,7 @@ fn main() {
                         }
                     }
                     else{
-                        panic!("File at /rems/readings/residence.txt does not exist!");
+                        panic!("File at /rems/readings/residence.json does not exist!");
                     }
                 }
             }
