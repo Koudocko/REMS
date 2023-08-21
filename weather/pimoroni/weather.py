@@ -1,11 +1,8 @@
 import json
 import time
-import stat
 import os
-import grp
 from datetime import datetime
 from mics6814 import MICS6814
-import logging
 from sgp30 import SGP30
 import sys
 import time
@@ -47,21 +44,23 @@ def bmp280_log():
 sensors = [sgp30_log, mics_log, bmp280_log]
 log_data = { "data": {}, "time": datetime.now().strftime("%H:%M:%S") }
 
-file_handle = open(log_path, "w")
+while True:
+    file_handle = open(log_path, "w")
 
-# Add sensor data to JSON object
-file_handle.seek(0)
-for sensor in sensors:
-   res = sensor()
+    # Add sensor data to JSON object
+    file_handle.seek(0)
+    for sensor in sensors:
+       res = sensor()
 
-   log_data["data"][res[0]] = res[1]
+       log_data["data"][res[0]] = res[1]
 
-# Write out JSON to file 
-file_handle.write(json.dumps(log_data))
-file_handle.flush()
+    # Write out JSON to file 
+    file_handle.write(json.dumps(log_data))
+    file_handle.flush()
 
-# Trasfer file to webserver
-file_handle.truncate()
-os.system("/rems/commands/transfer.sh")
+    # Trasfer file to webserver
+    file_handle.truncate()
+    os.system("/rems/commands/transfer.sh")
 
-file_handle.close()
+    file_handle.close()
+    time.sleep(5)

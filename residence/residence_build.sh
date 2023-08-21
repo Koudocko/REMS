@@ -54,7 +54,7 @@ sudo docker run \
     -dv /rems/readings/residence.json:/rems/readings/residence.json \
     residence-serial
 
-# Obtain residence id and BBP socket (an be edited in .env file)
+# Obtain residence id and BBP socket (can be edited in .env file)
 read -p "Input Residence ID (one word, no symbols except _ underscore): " RESIDENCE_ID
 read -p "Input BBP local server socket (IP:PORT): " SERVER_SOCKET
 echo -e "SERVER_SOCKET=$SERVER_SOCKET\nRESIDENCE_ID=$RESIDENCE_ID" > client/.env
