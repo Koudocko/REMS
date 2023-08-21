@@ -6,7 +6,6 @@ sudo apt-get install python3 python3-pip apache2 libapache2-mod-wsgi-py3
 
 # Django
 pip install django
-django-admin
 
 # Breakout garden
 wget https://github.com/pimoroni/breakout-garden/archive/master.zip
