@@ -4,12 +4,14 @@
 	--background-alt: #2E3137;
 }
 
+/* Set defined defaults for everything */
 *{
 	color: white;
 	margin: 0;
 	padding: 0;
 }
 
+/* Whole document body is a flexbox to align elements nicely */
 body{
 	display: flex;
 	justify-content: center;
@@ -19,6 +21,7 @@ body{
 	background-color: var(--background);
 }
 
+/* The main information display box in the middle of the screen */
 .main-table{
   width: 50%;
 	height: 80vh;
@@ -27,6 +30,7 @@ body{
 	z-index: 1;
 }
 
+/* Center an item */
 .flex-center{
 	height: 100%;
 	width: 100%;
@@ -34,6 +38,7 @@ body{
 	justify-content: center;
 	align-items: center;
 }
+/* Center an item at the top */
 .flex-top{
 	height: 100%;
 	width: 100%;
@@ -41,6 +46,7 @@ body{
 	justify-content: center;
 	align-items: top;
 }
+/* Space items equally */
 .flex-between{
 	height: 100%;
 	width: 100%;
@@ -49,6 +55,7 @@ body{
 	align-items: center;
 }
 
+/* Top coloured bar */
 #row-0{
 	height: 10%;
 }
@@ -59,6 +66,7 @@ body{
 	border-radius: 7px;
 }
 
+/* Temperature label */
 #row-1{
 	height: 30%;
 }
@@ -67,6 +75,7 @@ body{
 	font-size: 6em;
 }
 
+/* Smaller coloured bar in the middle of the box */
 #bottom-bar{
 	width: 40%;
 	height: 10%;
@@ -74,16 +83,19 @@ body{
 	border-radius: 10px;
 }
 
+/* The 5 data rows under temperature */
 .rows{
 	height: 12%;
 }
 
+/* Left aligned labels */
 .col-left{
 	font-size: 3em;
 	font-family: Arial;
 	padding-left: 5%;
 	color: white;
 }
+/* Right aligned data */
 .col-right{
 	font-size: 3em;
 	font-family: Arial;
@@ -91,6 +103,7 @@ body{
 	color: #B7B7B7;
 }
 
+/* Background animation */
 #canvas{
     position: fixed;
     top: 0; left: 0;

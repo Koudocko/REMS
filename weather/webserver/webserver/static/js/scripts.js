@@ -6,7 +6,9 @@
  *
  */
 
-document.write('<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>');
+// 
+// Start of animation
+//
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -152,11 +154,14 @@ function animate() {
     connect();
 }
 
-
-
 createParticles();
 animate();
 
+// 
+// End of animation
+//
+
+// Utilizes ajax to make a web request to the django backend at endpoint get_json and receive JSON payload data
 function updateUI() {
     $.ajax({
         url: '/get_json/',
@@ -172,3 +177,4 @@ function updateUI() {
 }
 
 setInterval(updateUI, 5000);
+window.onload = updateUI
