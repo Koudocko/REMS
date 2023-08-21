@@ -166,6 +166,7 @@ function updateUI() {
             $('#pressure').text(data.pressure);
             $('#eco2').text(data.co2);
             $('#tvoc').text(data.tvoc);
+            $('#aqi').text(data.aqi);
         }
     });
 }
