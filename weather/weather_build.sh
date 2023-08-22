@@ -25,7 +25,9 @@ install_pimoroni(){
   read -p "Host (IP):" HOST
   read -p "User:" USER
   read -p "Password:" PASS
-  echo -e "HOST=$HOST\nUSER=$USER\nPASS=$PASS" > pimoroni/.env
+  echo "HOST=$HOST" > pimoroni/.env
+  echo "USER=$USER" >> pimoroni/.env
+  echo "PASS=$PASS" >> pimoroni/.env
 }
 
 # Install webserver project
