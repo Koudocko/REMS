@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . .
 RUN apt-get update 
 RUN apt-get install -y python3 python3-pip wget unzip
-RUN pip install python-dotenv
+RUN apt-get install python3-dotenv
 RUN wget https://github.com/pimoroni/breakout-garden/archive/master.zip
 RUN unzip master.zip
 RUN ./breakout-garden-master/install.sh

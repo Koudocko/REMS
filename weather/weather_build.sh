@@ -17,7 +17,7 @@ install_pimoroni(){
       --privileged
       --name weather-pimoroni \
       -dv /rems/readings/weather.json:/rems/readings/weather.json \
-      -v $(PWD)/pimoroni/.env:/app/.env \
+      -v $(pwd)/pimoroni/.env:/app/.env \
       -v /dev:/dev \
     weather-pimoroni
 
