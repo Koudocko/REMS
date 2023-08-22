@@ -60,10 +60,13 @@ PASS = os.getenv('PASS')
 
 # FTP code to transfer weather.json to webserver
 def transfer_file(file):
-    ftp = ftplib.FTP(str(HOST))
-    ftp.login(str(USER), str(PASS))
-    ftp.storlines(f'STOR {log_path}', file)
-    ftp.quit()
+    try:
+        ftp = ftplib.FTP(str(HOST))
+        ftp.login(str(USER), str(PASS))
+        ftp.storlines(f'STOR {log_path}', file)
+        ftp.quit()
+    except:
+        print("Failed to transfer!")
 
 while True:
     file_handle = open(log_path, "w")
