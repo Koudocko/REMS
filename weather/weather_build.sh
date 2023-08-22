@@ -69,13 +69,13 @@ sudo chmod -R 777 /rems/readings
 while true; do
   read -p "Install Pimoroni (1), Webserver (2), or both (3)? " CHOICE
 
-  if [ "$CHOICE" == "1" ]; then
+  if [ "$CHOICE" = "1" ]; then
       install_pimoroni
       break
-  elif [ "$CHOICE" == "2" ]; then
+  elif [ "$CHOICE" = "2" ]; then
       install_webserver
       break
-  elif [ "$CHOICE" == "3" ]; then
+  elif [ "$CHOICE" = "3" ]; then
       install_webserver
       install_pimoroni
       break
