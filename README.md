@@ -6,11 +6,11 @@ REMS is a system of software ever expanding in scope. Currently, it exists as a 
 ## Contributors 
 ### Tyler Wehrle
 #### Connections
-**Email:** tyler@pcquest.ca
-**Github:** https://github.com/Koudocko
-**LinkedIn:** https://www.linkedin.com/in/tyler-wehrle-308aa4250
+**Email:** tyler@pcquest.ca  
+**Github:** https://github.com/Koudocko  
+**LinkedIn:** https://www.linkedin.com/in/tyler-wehrle-308aa4250  
 
-#### Contributions
+#### Contributions (Add your information below, following markdown format)
 * BBP (Big Brother Prometheus)
     * Wrote the framework for the rust TCP server / core data handler
     * Manages asynchronous connections to residences 
