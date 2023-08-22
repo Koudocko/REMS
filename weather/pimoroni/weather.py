@@ -3,31 +3,9 @@ import json
 import time
 import os
 from datetime import datetime
-from mics6814 import MICS6814
-from sgp30 import SGP30
 from dotenv import load_dotenv
 import sys
 import time
-try:
-    from smbus2 import SMBus
-except ImportError:
-    from smbus import SMBus
-from bmp280 import BMP280
-
-log_path = "/rems/readings/weather.json"
-
-# Initialize sensors
-sgp30 = SGP30()
-gas = MICS6814()
-bmp280 = BMP280(i2c_dev=SMBus(1))
-
-print("Sensor warming up, please wait...")
-def crude_progress_bar():
-    sys.stdout.write('.')
-    sys.stdout.flush()
-
-sgp30.start_measurement(crude_progress_bar)
-sys.stdout.write('\n')
 
 # Return SGP30 sensor data in JSON
 def sgp30_log():
@@ -44,6 +22,35 @@ def bmp280_log():
     return "BMP280", { "Temperature": bmp280.get_temperature(), "Pressure": bmp280.get_pressure() }
 
 sensors = [sgp30_log, mics_log, bmp280_log]
+
+try:
+    from smbus2 import SMBus
+except ImportError:
+    from smbus import SMBus
+try:
+    from bmp280 import BMP280
+    bmp280 = BMP280(i2c_dev=SMBus(1))
+except ImportError:
+    sensors.remove(bmp280_log)
+try:
+    from mics6814 import MICS6814
+    gas = MICS6814()
+except ImportError:
+    sensors.remove(mics_log)
+try:
+    from sgp30 import SGP30
+    sgp30 = SGP30()
+
+    print("Sensor warming up, please wait...")
+    def crude_progress_bar():
+        sys.stdout.write('.')
+        sys.stdout.flush()
+    sgp30.start_measurement(crude_progress_bar)
+    sys.stdout.write('\n')
+except ImportError:
+    sensors.remove(sgp30_log)
+
+log_path = "/rems/readings/weather.json"
 log_data = { "data": {}, "time": datetime.now().strftime("%H:%M:%S") }
 
 load_dotenv()
