@@ -2,10 +2,11 @@
 
 ### APT packages install
 sudo apt-get update
-sudo apt-get install python3 python3-pip apache2 libapache2-mod-wsgi-py3 python3-django cron
+sudo apt-get install python3 python3-pip apache2 libapache2-mod-wsgi-py3 python3-django raspi-config
 pip install django python-dotenv
 
 ### Breakout garden modules install
+sudo raspi-config nonint do_i2c 0
 wget https://github.com/pimoroni/breakout-garden/archive/master.zip
 unzip master.zip
 sudo ./breakout-garden-master/install.sh
@@ -34,9 +35,10 @@ sudo docker run \
 
 # Pimoroni RPi interfacer
 sudo docker run \
+    --privileged
     --name weather-pimoroni \
     -dv /rems/readings/weather.json:/rems/readings/weather.json \
-    -v /rems/commands/transfer.sh:/rems/commands/transfer.sh \
+    -v /dev:/dev \
     weather-pimoroni
 
 # # Django webserver 
