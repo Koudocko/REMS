@@ -9,4 +9,4 @@ RUN wget https://github.com/pimoroni/breakout-garden/archive/master.zip && \
     python3 autodetect.py --install && \
     cd .. && \
     rm -r breakout-garden-master
-CMD ["python3 weather.py"]
+CMD ["python3", "weather.py"]
