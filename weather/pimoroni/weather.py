@@ -23,6 +23,7 @@ def bmp280_log():
 
 sensors = [sgp30_log, mics_log, bmp280_log]
 
+# Attempt to import all required sensors
 try:
     from smbus2 import SMBus
 except ImportError:
@@ -53,6 +54,7 @@ except ImportError:
 log_path = "/rems/readings/weather.json"
 log_data = { "data": {}, "time": datetime.now().strftime("%H:%M:%S") }
 
+# Load environment variables from the .env file
 load_dotenv()
 HOST = os.getenv('HOST')
 USER = os.getenv('USER')
