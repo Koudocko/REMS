@@ -73,6 +73,7 @@ while True:
 
     # Add sensor data to JSON object
     file_handle.seek(0)
+    log_data["time"] = datetime.now().strftime("%H:%M:%S") 
     for sensor in sensors:
        res = sensor()
 
