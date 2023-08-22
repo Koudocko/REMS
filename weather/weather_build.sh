@@ -14,7 +14,7 @@ install_pimoroni(){
   
   # Run Pimoroni RPi interfacer container
   sudo docker run \
-      --privileged
+      --privileged \
       --name weather-pimoroni \
       -dv /rems/readings/weather.json:/rems/readings/weather.json \
       -v $(pwd)/pimoroni/.env:/app/.env \
@@ -25,7 +25,7 @@ install_pimoroni(){
   read -p "Host (IP):" HOST
   read -p "User:" USER
   read -p "Password:" PASS
-  echo -e "HOST=$HOST\nUSER=$USER\nPASS:$PASS" > .env
+  echo -e "HOST=$HOST\nUSER=$USER\nPASS:$PASS" > pimoroni/.env
 }
 
 # Install webserver project
