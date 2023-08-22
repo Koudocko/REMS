@@ -1,9 +1,11 @@
+import ftplib
 import json
 import time
 import os
 from datetime import datetime
 from mics6814 import MICS6814
 from sgp30 import SGP30
+from dotenv import load_dotenv
 import sys
 import time
 try:
@@ -44,6 +46,18 @@ def bmp280_log():
 sensors = [sgp30_log, mics_log, bmp280_log]
 log_data = { "data": {}, "time": datetime.now().strftime("%H:%M:%S") }
 
+load_dotenv()
+HOST = os.getenv('HOST')
+USER = os.getenv('USER')
+PASS = os.getenv('PASS')
+
+# FTP code to transfer weather.json to webserver
+def transfer_file(file):
+    ftp = ftplib.FTP(str(HOST))
+    ftp.login(str(USER), str(PASS))
+    ftp.storlines(f'STOR {log_path}', file)
+    ftp.quit()
+
 while True:
     file_handle = open(log_path, "w")
 
@@ -60,7 +74,7 @@ while True:
 
     # Trasfer file to webserver
     file_handle.truncate()
-    os.system("/rems/commands/transfer.sh")
+    transfer_file(file_handle)
 
     file_handle.close()
     time.sleep(5)

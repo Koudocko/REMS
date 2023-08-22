@@ -3,7 +3,7 @@
 ### APT packages install
 sudo apt-get update
 sudo apt-get install python3 python3-pip apache2 libapache2-mod-wsgi-py3 python3-django cron
-pip install django
+pip install django python-dotenv
 
 ### Breakout garden modules install
 wget https://github.com/pimoroni/breakout-garden/archive/master.zip
