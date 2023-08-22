@@ -1,8 +1,45 @@
 #!/bin/sh
 
-### APT packages install
-sudo apt-get update
-sudo apt-get install -y raspi-config
+# Install pimoroni project
+install_pimoroni(){
+  # APT packages install
+  sudo apt-get update
+  sudo apt-get install -y raspi-config
+  
+  # I2C bus enable
+  sudo raspi-config nonint do_i2c 0
+  
+  # Build docker image
+  sudo docker build -t weather-pimoroni pimoroni
+  
+  # Run Pimoroni RPi interfacer container
+  sudo docker run \
+      --privileged
+      --name weather-pimoroni \
+      -dv /rems/readings/weather.json:/rems/readings/weather.json \
+      -v $(PWD)/pimoroni/.env:/app/.env \
+      -v /dev:/dev \
+    weather-pimoroni
+
+  # Obtain webserver IP as well as credentials such as username/password (can be edited in .env file)
+  read -p "Host (IP):" HOST
+  read -p "User:" USER
+  read -p "Password:" PASS
+  echo -e "HOST=$HOST\nUSER=$USER\nPASS:$PASS" > .env
+}
+
+# Install webserver project
+install_webserver(){
+  # Build docker image
+  sudo docker build -t weather-webserver webserver
+
+  # Run Django webserver container
+  sudo docker run \
+      --name weather-webserver \
+      -dp 8080:8080 \
+      -v /rems/readings/weather.json:/rems/readings/weather.json \
+      weather-webserver
+}
 
 # Add docker repo to keyring
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -20,39 +57,25 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 # Enable docker service
 sudo systemctl enable --now docker
 
-# I2C bus enable
-sudo raspi-config nonint do_i2c 0
-
 ### Install Files
 sudo mkdir -p /rems/readings
-sudo mkdir -p /rems/commands
 sudo touch /rems/readings/weather.json
 sudo chmod -R 777 /rems/readings
-sudo cp weather.py /rems/commands/weather.py
 
-### Docker containers
-# Create docker containers from images
-sudo docker build -t weather-pimoroni pimoroni
-sudo docker build -t weather-webserver webserver
+while true; do
+  read -p "Install Pimoroni (1), Webserver (2), or both (3)? " CHOICE
 
-# Create docker containers from images
-# Pimoroni RPi interfacer
-sudo docker run \
-    --privileged
-    --name weather-pimoroni \
-    -dv /rems/readings/weather.json:/rems/readings/weather.json \
-    -v /dev:/dev \
-    weather-pimoroni
-
-# Django webserver 
-sudo docker run \
-    --name weather-webserver \
-    -dp 8080:8080 \
-    -v /rems/readings/weather.json:/rems/readings/weather.json \
-    weather-webserver
-
-# Obtain webserver IP as well as credentials such as username/password (can be edited in .env file)
-read -p "Host (IP):" HOST
-read -p "User:" USER
-read -p "Password:" PASS
-echo -e "HOST=$HOST\nUSER=$USER\nPASS:$PASS" > .env
+  if [ "$CHOICE" == "1" ]; then
+      install_pimoroni()
+      break
+  elif [ "$CHOICE" == "2" ]; then
+      install_webserver()
+      break
+  elif [ "$CHOICE" == "3" ]; then
+      install_webserver()
+      install_pimoroni()
+      break
+  else
+      echo "Invalid choice!!!"
+  fi
+done
