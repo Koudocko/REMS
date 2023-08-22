@@ -3,7 +3,7 @@
 ### Docker
 # APT dependency check
 sudo apt-get update
-sudo apt-get install ca-certificates curl gnupg
+sudo apt-get install -y ca-certificates curl gnupg
 
 # Add docker repo to keyring
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -16,7 +16,7 @@ echo \
 
 # Install docker and dependencies with APT
 sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Enable docker service
 sudo systemctl enable --now docker

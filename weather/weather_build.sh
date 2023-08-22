@@ -2,37 +2,40 @@
 
 ### APT packages install
 sudo apt-get update
-sudo apt-get install python3 python3-pip apache2 libapache2-mod-wsgi-py3 python3-django raspi-config
-pip install django python-dotenv
+sudo apt-get install -y raspi-config
 
-### Breakout garden modules install
+# Add docker repo to keyring
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Install docker and dependencies with APT
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Enable docker service
+sudo systemctl enable --now docker
+
+# I2C bus enable
 sudo raspi-config nonint do_i2c 0
-wget https://github.com/pimoroni/breakout-garden/archive/master.zip
-unzip master.zip
-sudo ./breakout-garden-master/install.sh
-sudo rm -r breakout-garden-master
 
-# Install Files
+### Install Files
 sudo mkdir -p /rems/readings
 sudo mkdir -p /rems/commands
-sudo touch /rems/readings/weather.txt
+sudo touch /rems/readings/weather.json
 sudo chmod -R 777 /rems/readings
 sudo cp weather.py /rems/commands/weather.py
-sudo cp transfer.sh /rems/commands/transfer.sh
-
 
 ### Docker containers
 # Create docker containers from images
-sudo docker pull httpd
 sudo docker build -t weather-pimoroni pimoroni
 sudo docker build -t weather-webserver webserver
 
 # Create docker containers from images
-# Apache web service
-sudo docker run \
-    --name weather-apache \
-    weather-apache
-
 # Pimoroni RPi interfacer
 sudo docker run \
     --privileged
@@ -41,18 +44,12 @@ sudo docker run \
     -v /dev:/dev \
     weather-pimoroni
 
-# # Django webserver 
-# sudo docker run \
-#     --name weather-webserver \
-#     -v /rems/readings/weather.json:/rems/readings/weather.json \
-#     weather-webserver
-
-# # Serial port parser
-# sudo docker run \
-#     --name residence-serial \
-#     --device=/dev/ttyACM0:/dev/ttyACM0 \
-#     -dv /rems/readings/residence.json:/rems/readings/residence.json \
-#     residence-serial
+# Django webserver 
+sudo docker run \
+    --name weather-webserver \
+    -dp 8080:8080 \
+    -v /rems/readings/weather.json:/rems/readings/weather.json \
+    weather-webserver
 
 # Obtain webserver IP as well as credentials such as username/password (can be edited in .env file)
 read -p "Host (IP):" HOST
