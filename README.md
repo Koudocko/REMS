@@ -3,14 +3,14 @@
 ## About
 REMS is a system of software ever expanding in scope. Currently, it exists as a network between several residence client machines connected to one server, BBP (Big Brother Prometheus). It also includes a weather station which can be deployed on the local network and accessed through a web server. These components are split into three directories, each with their own source files/code, an install script, and additional documentation.
 
-## Contributors 
+## Contributors (Add your information below, following markdown format)
 ### Tyler Wehrle
 #### Connections
 **Email:** tyler@pcquest.ca  
 **Github:** https://github.com/Koudocko  
 **LinkedIn:** https://www.linkedin.com/in/tyler-wehrle-308aa4250  
 
-#### Contributions (Add your information below, following markdown format)
+#### Contributions
 * BBP (Big Brother Prometheus)
     * Wrote the framework for the rust TCP server / core data handler
     * Manages asynchronous connections to residences 
