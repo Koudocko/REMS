@@ -35,29 +35,29 @@ sudo docker build -t bbp-server server
 
 # Create docker containers from images
 # Rust TCP server / general handler 
-sudo docker run \
+sudo docker create \
     --network bbp \
     --name bbp-server \
-    -dp 7879:7879 \
+    -p 7879:7879 \
     -v $(pwd)/server/.env:/app/.env \
     -v /rems/logs/log.txt:/rems/logs/log.txt \
     --restart unless-stopped \
     bbp-server
 
 # Prometheus server
-sudo docker run \
+sudo docker create \
     --network bbp \
     --name bbp-prometheus \
-    -dp 7878:7878 \
+    -p 7878:7878 \
     -v $(pwd)/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
     --restart unless-stopped \
     prom/prometheus
 
 # Grafana service
-sudo docker run \
+sudo docker create \
     --network bbp \
     --name=bbp-grafana \
-    -dp 3000:3000 \
+    -p 3000:3000 \
     -v $(pwd)/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml \
     --restart unless-stopped \
     grafana/grafana

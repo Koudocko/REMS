@@ -13,10 +13,10 @@ install_pimoroni(){
   sudo docker build -t weather-pimoroni pimoroni
   
   # Run Pimoroni RPi interfacer container
-  sudo docker run \
+  sudo docker create \
       --privileged \
       --name weather-pimoroni \
-      -dv /rems/readings/weather.json:/rems/readings/weather.json \
+      -v /rems/readings/weather.json:/rems/readings/weather.json \
       -v $(pwd)/pimoroni/.env:/app/.env \
       -v /dev:/dev \
       --restart unless-stopped \
@@ -37,9 +37,9 @@ install_webserver(){
   sudo docker build -t weather-webserver webserver
 
   # Run Django webserver container
-  sudo docker run \
+  sudo docker create \
       --name weather-webserver \
-      -dp 8080:8080 \
+      -p 8080:8080 \
       -v /rems/readings/weather.json:/rems/readings/weather.json \
       --restart unless-stopped \
       weather-webserver

@@ -34,9 +34,9 @@ sudo docker build -t residence-serial serial
 
 # Create docker containers from images
 # Rust TCP client
-sudo docker run \
+sudo docker create \
     --name residence-client \
-    -dv $(pwd)/client/.env:/app/.env \
+    -v $(pwd)/client/.env:/app/.env \
     -v /rems/readings/residence.json:/rems/readings/residence.json \
     --restart unless-stopped \
     residence-client
@@ -49,20 +49,21 @@ sudo docker run \
     residence-arduino
 
 # Serial port parser
-sudo docker run \
+sudo docker create \
     --name residence-serial \
     --device=/dev/ttyACM0:/dev/ttyACM0 \
-    -dv /rems/readings/residence.json:/rems/readings/residence.json \
+    -v /rems/readings/residence.json:/rems/readings/residence.json \
     --restart unless-stopped \
     residence-serial
 
 # Obtain residence id and BBP socket (can be edited in .env file)
 read -p "Input Residence ID (one word, no symbols except _ underscore): " RESIDENCE_ID
 read -p "Input BBP local server socket (IP:PORT): " SERVER_SOCKET
-echo -e "SERVER_SOCKET=$SERVER_SOCKET\nRESIDENCE_ID=$RESIDENCE_ID" > client/.env
+echo "SERVER_SOCKET=$SERVER_SOCKET" > client/.env
+echo "RESIDENCE_ID=$RESIDENCE_ID" >> client/.env
 
 # Initialze systemd units for startup on boot
-sudo cp client/residence-client.service /etc/systemd/system
-sudo cp client/residence-serial.service /etc/systemd/system
+sudo cp client/residence-client.service /etc/systemd/system/
+sudo cp serial/residence-serial.service /etc/systemd/system/
 sudo systemctl enable --now residence-client
 sudo systemctl enable --now residence-serial
