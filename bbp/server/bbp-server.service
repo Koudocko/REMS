@@ -1,0 +1,12 @@
+[Unit]
+Description=bbp-server docker container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start bbp-server
+ExecStop=/usr/bin/docker stop bbp-server
+
+[Install]
+WantedBy=multi-user.target

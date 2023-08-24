@@ -1,0 +1,12 @@
+[Unit]
+Description=residence-client docker container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start residence-client
+ExecStop=/usr/bin/docker stop residence-client
+
+[Install]
+WantedBy=multi-user.target

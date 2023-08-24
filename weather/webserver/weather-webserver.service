@@ -1,0 +1,12 @@
+[Unit]
+Description=weather-webserver docker container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start weather-webserver
+ExecStop=/usr/bin/docker stop weather-webserver
+
+[Install]
+WantedBy=multi-user.target

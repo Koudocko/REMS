@@ -58,3 +58,9 @@ sudo docker run \
 read -p "Input Residence ID (one word, no symbols except _ underscore): " RESIDENCE_ID
 read -p "Input BBP local server socket (IP:PORT): " SERVER_SOCKET
 echo -e "SERVER_SOCKET=$SERVER_SOCKET\nRESIDENCE_ID=$RESIDENCE_ID" > client/.env
+
+# Initialze systemd units for startup on boot
+sudo cp client/residence-client.service /etc/systemd/system
+sudo cp client/residence-serial.service /etc/systemd/system
+sudo systemctl enable --now residence-client
+sudo systemctl enable --now residence-serial

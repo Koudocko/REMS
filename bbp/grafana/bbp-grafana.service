@@ -1,0 +1,12 @@
+[Unit]
+Description=bbp-grafana docker container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start bbp-grafana
+ExecStop=/usr/bin/docker stop bbp-grafana
+
+[Install]
+WantedBy=multi-user.target

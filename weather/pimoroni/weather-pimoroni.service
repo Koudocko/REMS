@@ -1,0 +1,12 @@
+[Unit]
+Description=weather-pimoroni docker container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start weather-pimoroni
+ExecStop=/usr/bin/docker stop weather-pimoroni
+
+[Install]
+WantedBy=multi-user.target

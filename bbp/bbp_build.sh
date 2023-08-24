@@ -41,6 +41,7 @@ sudo docker run \
     -dp 7879:7879 \
     -v $(pwd)/server/.env:/app/.env \
     -v /rems/logs/log.txt:/rems/logs/log.txt \
+    --restart unless-stopped
     bbp-server
 
 # Prometheus server
@@ -49,6 +50,7 @@ sudo docker run \
     --name bbp-prometheus \
     -dp 7878:7878 \
     -v $(pwd)/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
+    --restart unless-stopped
     prom/prometheus
 
 # Grafana service
@@ -57,6 +59,7 @@ sudo docker run \
     --name=bbp-grafana \
     -dp 3000:3000 \
     -v $(pwd)/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml \
+    --restart unless-stopped
     grafana/grafana
 
 # Obtain grafana API token from user via cli (can be edited in .env file) 
@@ -65,3 +68,9 @@ echo "API_TOKEN=$API_TOKEN" > server/.env
 
 # Restart server to use updated token
 sudo docker restart bbp-server
+
+# Initialze systemd units for startup on boot
+sudo cp ./*/*.service /etc/systemd/system/
+sudo systemctl enable --now bbp-server
+sudo systemctl enable --now bbp-grafana
+sudo systemctl enable --now bbp-prometheus

@@ -85,3 +85,8 @@ while true; do
       echo "Invalid choice!!!"
   fi
 done
+
+# Initialze systemd units for startup on boot
+sudo cp ./*/*.service /etc/systemd/system/
+sudo systemctl enable --now weather-pimoroni
+sudo systemctl enable --now weather-webserver

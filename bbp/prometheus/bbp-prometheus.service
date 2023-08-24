@@ -1,0 +1,12 @@
+[Unit]
+Description=bbp-prometheus docker container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start bbp-prometheus
+ExecStop=/usr/bin/docker stop bbp-prometheus
+
+[Install]
+WantedBy=multi-user.target
