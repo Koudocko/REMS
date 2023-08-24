@@ -22,15 +22,14 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 sudo systemctl enable --now docker
 
 ### Install arduino-cli and libraries
-curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~ sh
-sudo mv arduino-cli /usr/local/bin/arduino-cli
-sudo cp arduino-upload /usr/loca/bin
-sudo arduino-cli core update-index
-sudo arduino-cli core install arduino:avr
-sudo arduino-cli lib install OneWire
-sudo arduino-cli lib install DallasTemperature
-sudo arduino-cli lib install "DHT sensor library"
-sudo arduino-cli lib install "Adafruit Unified Sensor"
+curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~ sh && sudo mv arduino-cli /usr/local/bin/arduino-cli
+sudo cp arduino/arduino-upload /usr/local/bin
+arduino-cli core update-index
+arduino-cli core install arduino:avr
+arduino-cli lib install OneWire
+arduino-cli lib install DallasTemperature
+arduino-cli lib install "DHT sensor library"
+arduino-cli lib install "Adafruit Unified Sensor"
 arduino-upload
 
 # Install reading file and directory
