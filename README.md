@@ -17,22 +17,22 @@ If there is any mention of being Dockerized, then the following commands may be 
 * **docker ps**: lists running Docker containers
 * **docker ps -a**: lists installed Docker containers
 * **docker image ls**: lists install Docker images
-* **docker stop <container-name>**: stops running Docker container
-* **docker start <container-name>**: start inactive Docker container
-* **docker restart <container-name>**: restart running Docker container
-* **docker attach <container-name>**: attach to running Docker container
-* **docker rm <container-name>**: remove Docker container
-* **docker rmi <image-name>**: remove Docker image
+* **docker stop &lt;container-name&gt;**: stops running Docker container
+* **docker start &lt;container-name&gt;**: start inactive Docker container
+* **docker restart &lt;container-name&gt;**: restart running Docker container
+* **docker attach &lt;container-name&gt;**: attach to running Docker container
+* **docker rm &lt;container-name&gt;**: remove Docker container
+* **docker rmi &lt;image-name&gt;**: remove Docker image
 
 While you could manage the underlying Docker containers like this, for general use I reccomend using systemd.  
 Systemd-related folders will list their service names.  
 If there is any mention of systemd or service files, then the following commands may be helpful:  
-* **systemctl status <systemd-unit>**: check if unit is active/enabled
-* **systemctl enable <systemd-unit>**: enable unit autostart on boot
-* **systemctl disable <systemd-unit>**: disable unit autostart on boot
-* **systemcctl start <systemd-unit>**: startup unit
-* **systemcctl stop <systemd-unit>**: shutdown unit
-* **systemcctl restart <systemd-unit>**: restart unit
+* **systemctl status &lt;systemd-unit&gt;**: check if unit is active/enabled
+* **systemctl enable &lt;systemd-unit&gt;**: enable unit autostart on boot
+* **systemctl disable &lt;systemd-unit&gt;**: disable unit autostart on boot
+* **systemcctl start &lt;systemd-unit&gt;**: startup unit
+* **systemcctl stop &lt;systemd-unit&gt;**: shutdown unit
+* **systemcctl restart &lt;systemd-unit&gt;**: restart unit
 
 ## Contributors (Add your information below, following markdown format)
 ### Tyler Wehrle
