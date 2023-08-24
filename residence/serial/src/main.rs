@@ -16,8 +16,7 @@ pub struct ResidenceData{
 }
 
 fn main(){
-    let mut command = Command::new("script")
-        .args(&["-q", "-c", "arduino-cli monitor -p /dev/ttyACM0", "/dev/null"])
+    let mut command = Command::new("/rems/files/serial/arduino-monitor")
         .stdout(Stdio::piped())
         .spawn()
         .expect("Failed to open /dev/ttyACM0");

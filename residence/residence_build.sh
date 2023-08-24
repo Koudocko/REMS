@@ -32,6 +32,8 @@ sudo cp -R arduino /rems/files
 sudo rm /rems/files/arduino/arduino-upload
 sudo mkdir /rems/files/client
 sudo cp client/.env /rems/files/client
+sudo mkdir /rems/files/serial
+sudo cp serial/arduino-monitor /rems/files/serial
 sudo chmod -R 777 /rems/files
 
 ### Install arduino-cli and libraries
@@ -64,6 +66,7 @@ sudo docker create \
     --name residence-serial \
     --device=/dev/ttyACM0:/dev/ttyACM0 \
     -v /rems/readings/residence.json:/rems/readings/residence.json \
+    -v /rems/files/serial/arduino-monitor:/rems/files/serial/arduino-monitor \
     residence-serial
 
 # Obtain residence id and BBP socket (can be edited in .env file)
