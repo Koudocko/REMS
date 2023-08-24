@@ -30,7 +30,7 @@ sudo chmod -R 777 /rems/readings
 ### Install program files
 sudo cp -R arduino /rems/files
 sudo rm /rems/files/arduino/arduino-upload
-sudo mkdir client
+sudo mkdir /rems/files/client
 sudo cp client/.env /rems/files/client
 sudo chmod -R 777 /rems/files
 

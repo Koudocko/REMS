@@ -17,7 +17,7 @@ install_pimoroni(){
       --privileged \
       --name weather-pimoroni \
       -v /rems/readings/weather.json:/rems/readings/weather.json \
-      -v $(pwd)/pimoroni/.env:/app/.env \
+      -v /rems/files/pimoroni/.env:/app/.env \
       -v /dev:/dev \
       weather-pimoroni
 
@@ -25,9 +25,9 @@ install_pimoroni(){
   read -p "Host (IP):" HOST
   read -p "User:" USER
   read -p "Password:" PASS
-  echo "HOST=$HOST" > pimoroni/.env
-  echo "USER=$USER" >> pimoroni/.env
-  echo "PASS=$PASS" >> pimoroni/.env
+  echo "HOST=$HOST" > /rems/files/pimoroni/.env
+  echo "USER=$USER" >> /rems/files/pimoroni/.env
+  echo "PASS=$PASS" >> /rems/files/pimoroni/.env
 }
 
 # Install webserver project
@@ -67,6 +67,11 @@ sudo systemctl enable --now docker
 sudo mkdir -p /rems/readings
 sudo touch /rems/readings/weather.json
 sudo chmod -R 777 /rems/readings
+
+### Install program files
+sudo mkdir /rems/files/pimoroni
+sudo cp pimoroni/.env /rems/files/pimoroni
+sudo chmod -R 777 /rems/files
 
 while true; do
   read -p "Install Pimoroni (1), Webserver (2), or both (3)? " CHOICE
