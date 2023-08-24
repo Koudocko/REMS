@@ -61,8 +61,8 @@ If there is any mention of systemd or service files, then the following commands
 
 #### Note
 I have some suggestions for future developers (things I did not get time to do).  
-Using the Grafana API, you can setup alerts for the sensor array via HTTP requests; the same way I automatically setup dashboards and folders.  
-Every client residence has an open TCP stream with the BBP server, thus the server can send instructions to the client to be read and acted on.  
-Communication with the Arduino is not one-ended, you can setup a script/program to rewrite the source code based on e.g. swapping out special variables for runtime data then recompiling/uploading with the arduino-upload command.  
+* Using the Grafana API, you can setup alerts for the sensor array via HTTP requests; the same way I automatically setup dashboards and folders.  
+* Every client residence has an open TCP stream with the BBP server, thus the server can send instructions to the client to be read and acted on.  
+* Communication with the Arduino is not one-ended, you can setup a script/program to rewrite the source code based on e.g. swapping out special variables for runtime data then recompiling/uploading with the arduino-upload command.  
 
 Contact me for any critical maintenance, bug fixes, and/or questions; as my contribution was still early in the experimental phase of development.
