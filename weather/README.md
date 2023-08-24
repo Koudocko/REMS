@@ -1,7 +1,7 @@
 # Overview of Weather Station 
 
 ## Directory Structure
-The Residence directory is composed by two sub directories, **pimoroni** and **webserver**
+The Residence directory is composed by two sub directories, **pimoroni** and **webserver**. Both directories contain a systemd unit file for startup.
 
 ### Pimoroni
 Pimoroni consists of a single python file which interfaces the RPi GPIO and transfers the data to the webserver, plus includes a Dockerfile for build. 

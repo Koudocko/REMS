@@ -1,7 +1,7 @@
 # Overview of BBP (Big Brother Prometheus) 
 
 ## Directory Structure
-The BBP directory is composed by three sub directories, **grafana**, **prometheus**, and **server**.
+The BBP directory is composed by three sub directories, **grafana**, **prometheus**, and **server**. Each of the following containt a systemd unit file for startup.
 
 ### Grafana
 The only file in here is a configuration file called **datasource.yml** which sets the default datasource to prometheus and to point to the Prometheus server on the network via **http://bbp-prometheus:7878**.

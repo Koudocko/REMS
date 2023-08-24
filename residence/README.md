@@ -1,10 +1,10 @@
 # Overview of Residence 
 
 ## Directory Structure
-The Residence directory is composed by three sub directories, **arduino**, **client**, and **serial**.
+The Residence directory is composed by three sub directories, **arduino**, **client**, and **serial**. Only Client and Serial contain systemd unit files for startup (see **Arduino** for info on why it is not).
 
 ### Arduino
-In here is all the build files written in Arduino C to be compiled and uploaded to the Arduino board. There also exists a Dockerfile, purely for organization/isolation to startup the board with the executable.
+In here is all the build files written in Arduino C to be compiled and uploaded to the Arduino board. There also exists a Dockerfile, purely for organization/isolation to startup the board with the executable. Only use this docker container to upload code to the Arduino, as it exits immediately after.
 
 ### Client
 The client directory contains a rust project with all the **.rs** files, alongside its own Dockerfile to build these files.

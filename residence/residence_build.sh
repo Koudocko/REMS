@@ -38,6 +38,7 @@ sudo docker run \
     --name residence-client \
     -dv $(pwd)/client/.env:/app/.env \
     -v /rems/readings/residence.json:/rems/readings/residence.json \
+    --restart unless-stopped \
     residence-client
 
 # Arduino program uploader
@@ -52,6 +53,7 @@ sudo docker run \
     --name residence-serial \
     --device=/dev/ttyACM0:/dev/ttyACM0 \
     -dv /rems/readings/residence.json:/rems/readings/residence.json \
+    --restart unless-stopped \
     residence-serial
 
 # Obtain residence id and BBP socket (can be edited in .env file)

@@ -19,7 +19,8 @@ install_pimoroni(){
       -dv /rems/readings/weather.json:/rems/readings/weather.json \
       -v $(pwd)/pimoroni/.env:/app/.env \
       -v /dev:/dev \
-    weather-pimoroni
+      --restart unless-stopped \
+      weather-pimoroni
 
   # Obtain webserver IP as well as credentials such as username/password (can be edited in .env file)
   read -p "Host (IP):" HOST
@@ -40,6 +41,7 @@ install_webserver(){
       --name weather-webserver \
       -dp 8080:8080 \
       -v /rems/readings/weather.json:/rems/readings/weather.json \
+      --restart unless-stopped \
       weather-webserver
 }
 
