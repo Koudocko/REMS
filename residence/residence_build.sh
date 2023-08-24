@@ -26,11 +26,15 @@ sudo mkdir -p /rems/readings
 sudo mkdir -p /rems/files
 sudo touch /rems/readings/residence.json
 sudo chmod -R 777 /rems/readings
+
+### Install program files
+sudo cp -R arduino /rems/files
+sudo rm /rems/files/arduino/arduino-upload
+sudo mkdir client
+sudo cp client/.env /rems/files/client
 sudo chmod -R 777 /rems/files
 
 ### Install arduino-cli and libraries
-sudo cp -R arduino /rems/files
-sudo rm /rems/files/arduino/arduino-upload
 curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~ sh 
 sudo mv arduino-cli /usr/local/bin/arduino-cli
 sudo cp arduino/arduino-upload /usr/local/bin
@@ -51,7 +55,7 @@ sudo docker build -t residence-serial serial
 # Rust TCP client
 sudo docker create \
     --name residence-client \
-    -v $(pwd)/client/.env:/app/.env \
+    -v /rems/files/client/.env:/app/.env \
     -v /rems/readings/residence.json:/rems/readings/residence.json \
     residence-client
 
@@ -65,8 +69,8 @@ sudo docker create \
 # Obtain residence id and BBP socket (can be edited in .env file)
 read -p "Input Residence ID (one word, no symbols except _ underscore): " RESIDENCE_ID
 read -p "Input BBP local server IP (IP): " SERVER_IP
-echo "SERVER_IP=$SERVER_IP:7879" > client/.env
-echo "RESIDENCE_ID=$RESIDENCE_ID" >> client/.env
+echo "SERVER_IP=$SERVER_IP:7879" > /rems/files/client/.env
+echo "RESIDENCE_ID=$RESIDENCE_ID" >> /rems/files/client/.env
 
 # Initialze systemd units for startup on boot
 sudo cp client/residence-client.service /etc/systemd/system/
