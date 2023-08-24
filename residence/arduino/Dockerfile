@@ -13,5 +13,4 @@ RUN arduino-cli lib install OneWire
 RUN arduino-cli lib install DallasTemperature
 RUN arduino-cli lib install "DHT sensor library"
 RUN arduino-cli lib install "Adafruit Unified Sensor"
-RUN arduino-cli compile --fqbn arduino:avr:mega 
-CMD ["arduino-cli", "upload", "-p", "/dev/ttyACM0", "--fqbn", "arduino:avr:mega"]
+CMD ["sh", "-c", "arduino-cli compile --fqbn arduino:avr:mega && arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:avr:mega"]

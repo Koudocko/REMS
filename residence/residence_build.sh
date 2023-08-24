@@ -59,7 +59,7 @@ sudo docker create \
 # Obtain residence id and BBP socket (can be edited in .env file)
 read -p "Input Residence ID (one word, no symbols except _ underscore): " RESIDENCE_ID
 read -p "Input BBP local server IP (IP): " SERVER_IP
-echo "SERVER_SOCKET=$SERVER_IP:7879" > client/.env
+echo "SERVER_IP=$SERVER_IP:7879" > client/.env
 echo "RESIDENCE_ID=$RESIDENCE_ID" >> client/.env
 
 # Initialze systemd units for startup on boot
