@@ -45,7 +45,6 @@ sudo docker create \
 sudo docker run \
     --name residence-arduino \
     --device=/dev/ttyACM0:/dev/ttyACM0 \
-    -d \
     residence-arduino
 
 # Serial port parser
