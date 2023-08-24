@@ -5,7 +5,7 @@ After=docker.service
 
 [Service]
 Restart=always
-ExecStart=/usr/bin/docker start weather-pimoroni
+ExecStart=/usr/bin/docker start -a weather-pimoroni
 ExecStop=/usr/bin/docker stop weather-pimoroni
 
 [Install]
