@@ -29,7 +29,7 @@ sudo chmod -R 777 /rems/readings
 sudo chmod -R 777 /rems/files
 
 ### Install arduino-cli and libraries
-sudo cp -R arduino /rems/files/arduino
+sudo cp -R arduino /rems/files
 sudo rm /rems/files/arduino/arduino-upload
 curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~ sh 
 sudo mv arduino-cli /usr/local/bin/arduino-cli
