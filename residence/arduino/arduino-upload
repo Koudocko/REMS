@@ -1,3 +1,3 @@
 #!/bin/sh
 
-arduino-cli compile --fqbn arduino:avr:mega && arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:avr:mega
+arduino-cli compile --fqbn arduino:avr:mega /rems/files/arduino && arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:avr:mega /rems/files/arduino
