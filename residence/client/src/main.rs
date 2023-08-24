@@ -45,7 +45,7 @@ fn main() {
     dotenvy::dotenv().unwrap();
 
     // Checks that variables are present and viable
-    if let Ok(server_socket) = env::var("SERVER_SOCKET"){
+    if let Ok(server_socket) = env::var("SERVER_IP"){
         if let Ok(mut stream) = TcpStream::connect(&server_socket){
             if let Ok(residence_id) = env::var("RESIDENCE_ID"){
                 // Initial set residence id request before providing sensor data
@@ -84,7 +84,7 @@ fn main() {
         }
     }
     else{
-        panic!("Environment variable SERVER_SOCKET is not set!");
+        panic!("Environment variable SERVER_IP is not set!");
     }
 
 }
