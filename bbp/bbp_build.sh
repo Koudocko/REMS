@@ -41,7 +41,6 @@ sudo docker create \
     -p 7879:7879 \
     -v $(pwd)/server/.env:/app/.env \
     -v /rems/logs/log.txt:/rems/logs/log.txt \
-    --restart unless-stopped \
     bbp-server
 
 # Prometheus server
@@ -50,7 +49,6 @@ sudo docker create \
     --name bbp-prometheus \
     -p 7878:7878 \
     -v $(pwd)/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
-    --restart unless-stopped \
     prom/prometheus
 
 # Grafana service
@@ -59,7 +57,6 @@ sudo docker create \
     --name=bbp-grafana \
     -p 3000:3000 \
     -v $(pwd)/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml \
-    --restart unless-stopped \
     grafana/grafana
 
 # Obtain grafana API token from user via cli (can be edited in .env file) 

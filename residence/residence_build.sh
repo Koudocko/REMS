@@ -53,7 +53,6 @@ sudo docker create \
     --name residence-client \
     -v $(pwd)/client/.env:/app/.env \
     -v /rems/readings/residence.json:/rems/readings/residence.json \
-    --restart unless-stopped \
     residence-client
 
 # Serial port parser
@@ -61,7 +60,6 @@ sudo docker create \
     --name residence-serial \
     --device=/dev/ttyACM0:/dev/ttyACM0 \
     -v /rems/readings/residence.json:/rems/readings/residence.json \
-    --restart unless-stopped \
     residence-serial
 
 # Obtain residence id and BBP socket (can be edited in .env file)
