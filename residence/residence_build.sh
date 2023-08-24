@@ -21,6 +21,18 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 # Enable docker service
 sudo systemctl enable --now docker
 
+### Install arduino-cli and libraries
+curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~ sh
+sudo mv arduino-cli /usr/local/bin/arduino-cli
+sudo cp arduino-upload /usr/loca/bin
+sudo arduino-cli core update-index
+sudo arduino-cli core install arduino:avr
+sudo arduino-cli lib install OneWire
+sudo arduino-cli lib install DallasTemperature
+sudo arduino-cli lib install "DHT sensor library"
+sudo arduino-cli lib install "Adafruit Unified Sensor"
+arduino-upload
+
 # Install reading file and directory
 sudo mkdir -p /rems/readings
 sudo touch /rems/readings/residence.json
@@ -29,7 +41,6 @@ sudo chmod -R 777 /rems/readings
 ### Docker containers
 # Create pull/build images
 sudo docker build -t residence-client client 
-sudo docker build -t residence-arduino arduino 
 sudo docker build -t residence-serial serial 
 
 # Create docker containers from images
@@ -40,12 +51,6 @@ sudo docker create \
     -v /rems/readings/residence.json:/rems/readings/residence.json \
     --restart unless-stopped \
     residence-client
-
-# Arduino program uploader
-sudo docker run \
-    --name residence-arduino \
-    --device=/dev/ttyACM0:/dev/ttyACM0 \
-    residence-arduino
 
 # Serial port parser
 sudo docker create \
