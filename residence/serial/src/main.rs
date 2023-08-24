@@ -5,6 +5,7 @@ use std::{
 };
 use serde::{Serialize, Deserialize};
 
+// JSON package payload format
 #[derive(Serialize, Deserialize)]
 pub struct ResidenceData{
     ds18b20_temperature: [f64; 3],
@@ -16,6 +17,7 @@ pub struct ResidenceData{
 }
 
 fn main(){
+    // Fork a new process running the arduino-cli monitor and pipe its stdout into this stdin
     let mut command = Command::new("/rems/files/serial/arduino-monitor")
         .stdout(Stdio::piped())
         .spawn()
@@ -25,11 +27,14 @@ fn main(){
     let reader = BufReader::new(stdout);
 
     let mut json = String::new();
+    // Iterate over the stdout of the monitor
     for line in reader.lines(){
         if let Ok(line) = line{
+            // Start building if opening brace is found
             if line.contains("{"){
                 json.push('{');
             }
+            // Write to file if closing brace is found and cleanup
             else if line.contains("}"){
                 json.push('}');
 
@@ -43,6 +48,7 @@ fn main(){
 
                 json = String::new();
             }
+            // If started building, add inner data
             else{
                 if !json.is_empty(){
                     json.push_str(&line);

@@ -1,13 +1,34 @@
 # Overview of Weather Station 
 
 ## Directory Structure
-The Residence directory is composed by two sub directories, **pimoroni** and **webserver**. Both directories contain a systemd unit file for startup.
+The Residence directory is composed by two sub directories, **pimoroni** and **webserver**.
 
 ### Pimoroni
-Pimoroni consists of a single python file which interfaces the RPi GPIO and transfers the data to the webserver, plus includes a Dockerfile for build. 
+* **Dockerfile**: Docker image build file
+    * Image and container are named **weather-pimoroni**
+    * Installs Python APT dependencies
+    * Creates virtual Python environment
+    * Installs Python PIP dependencies
+* **weather-pimoroni.service**: Systemd unit file
+    * Manages auto startup of Docker container
+    * Force starts and stops Docker container
+* **weather.py**: Python file
+    * Reads data from sensors RPi's GPIO 
+    * Formats data into a JSON package
+    * Transfers JSON package to webserver
 
 ### Webserver
 The webserver contains a complete Django project, bundled in with static CSS/JS files and the HTML template. A Dockerfile is also included to containerize it.
+* **Dockerfile**: Docker image build file
+    * Image and container are named **weather-webserver**
+    * 
+* **weather-webserver.service**: Systemd unit file
+    * Manages auto startup of Docker container
+    * Force starts and stops Docker container
+* **weather.py**: Python file
+    * Reads data from sensors RPi's GPIO 
+    * Formats data into a JSON package
+    * Transfers JSON package to webserver
 
 ## How it Works
 There are only two components of the weather station working together. These can either be deployed on the same server to allow for both GPIO interfacing and webserver hosting on the same machine, or seperately. Essentially, the Pimoroni container **weather-pimoroni** is a python script which scrapes data from a few sensors on the RPi's GPIO. It then takes this data collected, stores it at **/rems/readings/weather.json**, and utilizes FTP to send it to the webserver at the same directory. The webserver container **weather-webserver** which runs the Django framework runs on the local machine's IP at port 8080. Every 5 seconds, the backend grabs updated data from the **weather.json** file and displays it. The interaction between these two applications is pretty simple. 
