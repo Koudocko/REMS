@@ -20,7 +20,7 @@ REMS is a system of software ever expanding in scope. Currently, it exists as a 
     * Wrote the rust client end of BBP's TCP stream, providing a trivial library
     * Created a system for developing Arduino modules in Arduino C
     * Setup sensor code for DHT22, DAOKI sound sensor, HCSR-505, DS18B20, moisture sensor
-    * Wrote a serial parser in C for the Arduino's communication
+    * Wrote a serial parser in Rust for the Arduino's communication (uses arduino-cli now, not bare C)
 * Weather Station
     * Wrote Python code to collect data from RPi GPIO sensors
     * Setup and wrote Django backend for web server

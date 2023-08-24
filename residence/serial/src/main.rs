@@ -26,7 +26,7 @@ fn main(){
     let reader = BufReader::new(stdout);
 
     let mut json = String::new();
-    for line in reader.lines() {
+    for line in reader.lines(){
         if let Ok(line) = line{
             if line.contains("{"){
                 json.push('{');
