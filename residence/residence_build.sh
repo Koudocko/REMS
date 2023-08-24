@@ -46,7 +46,6 @@ arduino-cli lib install OneWire
 arduino-cli lib install DallasTemperature
 arduino-cli lib install "DHT sensor library"
 arduino-cli lib install "Adafruit Unified Sensor"
-arduino-upload
 
 ### Docker containers
 # Create pull/build images
@@ -79,5 +78,6 @@ echo "RESIDENCE_ID=$RESIDENCE_ID" >> /rems/files/client/.env
 sudo cp client/residence-client.service /etc/systemd/system/
 sudo cp serial/residence-serial.service /etc/systemd/system/
 sudo systemctl daemon-reload
+arduino-upload
 sudo systemctl enable --now residence-client
 sudo systemctl enable --now residence-serial

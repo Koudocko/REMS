@@ -5,6 +5,11 @@ The Residence directory is composed by three sub directories, **arduino**, **cli
 
 ### Arduino
 In here is all the build files written in Arduino C to be compiled and uploaded to the Arduino board. There also exists a shell script to compile and upload the Arduino C code with ease, just run **arduino-monitor**.
+* **weather.py**: Python file
+    * Reads data from sensors RPi's GPIO
+    * Formats data into a JSON package
+    * Transfers JSON package to webserver
+
 
 ### Client
 The client directory contains a rust project with all the **.rs** files, alongside its own Dockerfile to build these files.

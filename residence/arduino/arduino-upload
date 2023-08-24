@@ -1,3 +1,5 @@
 #!/bin/sh
 
+sudo systemctl stop residence-serial
 arduino-cli compile --fqbn arduino:avr:mega /rems/files/arduino && arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:avr:mega /rems/files/arduino
+sudo systemctl start residence-serial

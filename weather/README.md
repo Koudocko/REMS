@@ -18,7 +18,6 @@ The Residence directory is composed by two sub directories, **pimoroni** and **w
     * Transfers JSON package to webserver
 
 ### Webserver
-The webserver contains a complete Django project, bundled in with static CSS/JS files and the HTML template. A Dockerfile is also included to containerize it.
 * **Dockerfile**: Docker image build file
     * Image and container are named **weather-webserver**
     * Install Python PIP dependencies
