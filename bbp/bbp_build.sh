@@ -26,6 +26,15 @@ sudo mkdir -p /rems/logs
 sudo touch /rems/logs/log.txt
 sudo chmod -R 777 /rems/logs
 
+### Install program files
+sudo mkdir /rems/files/server
+sudo cp server/.env /rems/files/server
+sudo mkdir /rems/files/prometheus
+sudo cp prometheus/prometheus.yml /rems/files/prometheus
+sudo mkdir /rems/files/grafana
+sudo cp grafana/datasource.yml /rems/files/grafana
+sudo chmod -R 777 /rems/files
+
 ### Docker containers
 # Create network and pull/build images
 sudo docker network create bbp
@@ -39,7 +48,7 @@ sudo docker create \
     --network bbp \
     --name bbp-server \
     -p 7879:7879 \
-    -v $(pwd)/server/.env:/app/.env \
+    -v /rems/files/server/.env:/app/.env \
     -v /rems/logs/log.txt:/rems/logs/log.txt \
     bbp-server
 
@@ -48,7 +57,7 @@ sudo docker create \
     --network bbp \
     --name bbp-prometheus \
     -p 7878:7878 \
-    -v $(pwd)/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
+    -v /rems/files/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
     prom/prometheus
 
 # Grafana service
@@ -56,12 +65,12 @@ sudo docker create \
     --network bbp \
     --name=bbp-grafana \
     -p 3000:3000 \
-    -v $(pwd)/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml \
+    -v /rems/files/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml \
     grafana/grafana
 
 # Obtain grafana API token from user via cli (can be edited in .env file) 
 read -p "Create service account with admin, add token, and enter Grafana API token (localhost:3000 > Administration > Service Accounts): " API_TOKEN
-echo "API_TOKEN=$API_TOKEN" > server/.env
+echo "API_TOKEN=$API_TOKEN" > /rems/files/server/.env
 
 # Restart server to use updated token
 sudo docker restart bbp-server
