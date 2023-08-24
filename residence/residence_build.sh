@@ -65,5 +65,6 @@ echo "RESIDENCE_ID=$RESIDENCE_ID" >> client/.env
 # Initialze systemd units for startup on boot
 sudo cp client/residence-client.service /etc/systemd/system/
 sudo cp serial/residence-serial.service /etc/systemd/system/
+sudo systemctl daemon-reload
 sudo systemctl enable --now residence-client
 sudo systemctl enable --now residence-serial

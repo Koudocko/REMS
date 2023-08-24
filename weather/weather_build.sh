@@ -90,5 +90,6 @@ done
 
 # Initialze systemd units for startup on boot
 sudo cp ./*/*.service /etc/systemd/system/
+sudo systemctl daemon-reload
 sudo systemctl enable --now weather-pimoroni
 sudo systemctl enable --now weather-webserver

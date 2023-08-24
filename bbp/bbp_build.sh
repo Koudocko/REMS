@@ -71,6 +71,7 @@ sudo docker restart bbp-server
 
 # Initialze systemd units for startup on boot
 sudo cp ./*/*.service /etc/systemd/system/
+sudo systemctl daemon-reload
 sudo systemctl enable --now bbp-server
 sudo systemctl enable --now bbp-grafana
 sudo systemctl enable --now bbp-prometheus
