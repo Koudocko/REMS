@@ -62,7 +62,7 @@ sudo docker create \
     residence-client
 
 # Serial port parser
-sudo docker create \
+sudo docker create -t \
     --name residence-serial \
     --device=/dev/ttyACM0:/dev/ttyACM0 \
     -v /rems/readings/residence.json:/rems/readings/residence.json \

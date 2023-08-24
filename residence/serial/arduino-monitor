@@ -1,2 +1,2 @@
 #!/bin/sh
-script -q -c "arduino-cli monitor -p /dev/ttyACM0" /dev/null
+arduino-cli monitor -p /dev/ttyACM0
