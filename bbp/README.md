@@ -1,9 +1,6 @@
 # Overview of BBP (Big Brother Prometheus) 
 
 ## Directory Structure
-* **weather-pimoroni.service**: Systemd unit file
-    * Unit is named **weather-pimoroni**
-
 The BBP directory is composed by three sub directories, **grafana**, **prometheus**, and **server**. Each of the following containt a systemd unit file for startup.
 
 ### Grafana
