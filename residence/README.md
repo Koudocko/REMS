@@ -8,10 +8,10 @@ The Residence directory is composed by three sub directories, **arduino**, **cli
     * Initializes sensor modules
     * Sets module pinouts
     * Polls modules and prints JSON to serial stream
-* **lib.ino/h**: Core structs 
+* **lib.ino|h**: Core structs 
     * Module struct and methods
     * JSON format struct and methods
-* **motion/temp/vib.h**: Sensor specific implementations
+* **motion|temp|vib.h**: Sensor specific implementations
     * Specialized callback functions per module instance
 * **arduino-upload**: Arduino code upload script
     * Run arduino-upload to compile and upload the arduino code 
