@@ -14,20 +14,20 @@ The Residence directory is composed by three sub directories, **arduino**, **cli
 * **motion/temp/vib.h**: Sensor specific implementations
     * Specialized callback functions per module instance
 * **arduino-upload**: Arduino code upload script
-    * Run **arduino-upload** to compile and upload the arduino code 
+    * Run arduino-upload to compile and upload the arduino code 
     * Restarts the Arduino serial scraper
 
 ### Client
 * **Dockerfile**: Docker image build file
     * Image and container are named **residence-client**
-    * Builds rust project with cargo
+    * Builds Rust project with Cargo
     * Runs finished executable
 * **residence-client.service**: Systemd unit file
     * Unit is named **residence-client**
 * **Cargo.toml**: Rust project specification
-    * Specifies executable name as **residence-client**
+    * Specifies executable name as residence-client
     * Adds serde, serde_json, and dotenvy as dependencies
-* **src/main.rs**: Main rust file
+* **src/main.rs**: Main Rust file
     * Pulls server IP and residence id from .env file
     * Creates TCP connection to BBP and sends JSON data
 
@@ -35,16 +35,16 @@ The Residence directory is composed by three sub directories, **arduino**, **cli
 * **Dockerfile**: Docker image build file
     * Image and container are named **residence-serial**
     * Installs arduino-cli executable
-    * Builds rust project with cargo
+    * Builds Rust project with Cargo
     * Installs APT dependencies
     * Updates and install Arduino board core
     * Runs finished executable
-* **residence-client.service**: Systemd unit file
-    * Unit is named **residence-client**
+* **residence-serial.service**: Systemd unit file
+    * Unit is named **residence-serial**
 * **Cargo.toml**: Rust project specification
-    * Specifies executable name as **residence-serial**
+    * Specifies executable name as residence-serial
     * Adds serde and serde_json as dependencies
-* **src/main.rs**: Main rust file
+* **src/main.rs**: Main Rust file
     * Forks and executes arduino-monitor script with stdout pipe
     * Parsed runtime stdout for JSON and writes to data file
 * **arduino-monitor**: Shell script to read serial port

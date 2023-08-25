@@ -21,7 +21,7 @@ The Residence directory is composed by two sub directories, **pimoroni** and **w
 * **Dockerfile**: Docker image build file
     * Image and container are named **weather-webserver**
     * Install Python PIP dependencies
-    * Exposes server port
+    * Exposes server port 8080
     * Activates Django server with Python script 
 * **weather-webserver.service**: Systemd unit file
     * Unit is named **weather-pimoroni**
