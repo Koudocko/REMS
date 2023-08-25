@@ -20,7 +20,6 @@ The BBP directory is composed by three sub directories, **grafana**, **prometheu
     * Sets scrape location to bbp-server:7878
 
 ### Server
-Unlike the previous two directories, this directory contains an entire rust project along with a Dockerfile. The rust project contains all the source **.rs** files and the Dockerfile how to build those files into a container.
 * **Dockerfile**: Docker image build file
     * Image and container are named **bbp-server**
     * Builds Rust project with Cargo
