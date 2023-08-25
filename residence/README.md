@@ -4,18 +4,51 @@
 The Residence directory is composed by three sub directories, **arduino**, **client**, and **serial**. Only Client and Serial contain systemd unit files for startup (see **Arduino** for info on why it is not).
 
 ### Arduino
-In here is all the build files written in Arduino C to be compiled and uploaded to the Arduino board. There also exists a shell script to compile and upload the Arduino C code with ease, just run **arduino-monitor**.
-* **weather.py**: Python file
-    * Reads data from sensors RPi's GPIO
-    * Formats data into a JSON package
-    * Transfers JSON package to webserver
-
+* **arduino.ino**: Main Arduino C file
+    * Initializes sensor modules
+    * Sets module pinouts
+    * Polls modules and prints JSON to serial stream
+* **lib.ino/h**: Core structs 
+    * Module struct and methods
+    * JSON format struct and methods
+* **motion/temp/vib.h**: Sensor specific implementations
+    * Specialized callback functions per module instance
+* **arduino-upload**: Arduino code upload script
+    * Run **arduino-upload** to compile and upload the arduino code 
+    * Restarts the Arduino serial scraper
 
 ### Client
-The client directory contains a rust project with all the **.rs** files, alongside its own Dockerfile to build these files.
+* **Dockerfile**: Docker image build file
+    * Image and container are named **residence-client**
+    * Builds rust project with cargo
+    * Runs finished executable
+* **residence-client.service**: Systemd unit file
+    * Unit is named **residence-client**
+* **Cargo.toml**: Rust project specification
+    * Specifies executable name as **residence-client**
+    * Adds serde, serde_json, and dotenvy as dependencies
+* **src/main.rs**: Main rust file
+    * Pulls server IP and residence id from .env file
+    * Creates TCP connection to BBP and sends JSON data
 
 ### Serial
-The serial directory contains another Dockerfile, allowing it to run concurrently with the Arduino container and scrape its serial output for processing. This is a rust project utilizing the arduino-cli monitor output to scrape and transfer to a file.
+* **Dockerfile**: Docker image build file
+    * Image and container are named **residence-serial**
+    * Installs arduino-cli executable
+    * Builds rust project with cargo
+    * Installs APT dependencies
+    * Updates and install Arduino board core
+    * Runs finished executable
+* **residence-client.service**: Systemd unit file
+    * Unit is named **residence-client**
+* **Cargo.toml**: Rust project specification
+    * Specifies executable name as **residence-serial**
+    * Adds serde and serde_json as dependencies
+* **src/main.rs**: Main rust file
+    * Forks and executes arduino-monitor script with stdout pipe
+    * Parsed runtime stdout for JSON and writes to data file
+* **arduino-monitor**: Shell script to read serial port
+    * Bundles arduino-cli monitor + flags into one command
 
 ## How it Works
 A client node works in a very linear way. Firstly, the arduino script **residence-arduino** initializes several sensor modules, which is essentially a wrapper struct which provides access to pinout, polling times, and an interface via .execute() which handles non-blocking data retrieval. Each of these sensors write their values to a global instance of a struct holding sensor readings. At the end of the event loop, this struct instance is converted into a stringified JSON format which is sent across the serial connection. Secondly, the serial container **residence-serial** runs it's compiled Rust executable to scrape the serial device **/dev/ttyACM0** where the arduino is outputting the JSON. Once the serial output is parsed, it is written to the file at **/rems/readings/residence.json**. Lastly, the client container **residence-client** establishes a connection with BBP and sets its residence id. I then validates the JSON in that file by deserializing it into a rust-usable struct, subsequently sending it to BBP for processing. Specifics about the TCP requests format is talked about at **REMS/bbp/README.md**. The serial and client containers are constantly running and performing actions on updated data.
