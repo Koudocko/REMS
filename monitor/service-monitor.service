@@ -5,7 +5,7 @@ After=docker.service
 
 [Service]
 Restart=always
-ExecStart=/rems/files/monitor/monitor/manage.py runserver
+ExecStart=/rems/files/monitor/manage.py runserver
 
 [Install]
 WantedBy=multi-user.target

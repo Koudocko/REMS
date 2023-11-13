@@ -25,6 +25,7 @@ sudo systemctl enable --now docker
 sudo usermod -aG dialout,tty $(whoami)
 
 # Add systemd service gui monitor
+sudo pip install django
 echo "residence-client residence-serial " >> ../monitor/monitor/static/services/services.txt
 sudo mv ../monitor /rems/files/
 
@@ -84,7 +85,7 @@ echo "RESIDENCE_ID=$RESIDENCE_ID" >> /rems/files/client/.env
 # Initialze systemd units for startup on boot
 sudo cp client/residence-client.service /etc/systemd/system/
 sudo cp serial/residence-serial.service /etc/systemd/system/
-sudo cp /rems/files/monitor/monitor.service /etc/systemd/system/
+sudo cp /rems/files/monitor/service-monitor.service /etc/systemd/system/
 sudo systemctl daemon-reload
 arduino-upload
 sudo systemctl enable --now residence-client

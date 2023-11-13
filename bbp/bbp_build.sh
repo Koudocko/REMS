@@ -22,6 +22,7 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 sudo systemctl enable --now docker
 
 # Add systemd service gui monitor
+sudo pip install django
 echo "bbp-server bbp-grafana bbp-prometheus" >> ../monitor/monitor/static/services/services.txt
 sudo mv ../monitor /rems/files/
 
@@ -81,7 +82,7 @@ sudo docker restart bbp-server
 
 # Initialze systemd units for startup on boot
 sudo cp ./*/*.service /etc/systemd/system/
-sudo cp /rems/files/monitor/monitor.service /etc/systemd/system/
+sudo cp /rems/files/monitor/service-monitor.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now bbp-server
 sudo systemctl enable --now bbp-grafana

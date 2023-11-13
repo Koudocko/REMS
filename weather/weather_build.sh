@@ -64,6 +64,7 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 sudo systemctl enable --now docker
 
 # Add systemd service gui monitor
+sudo pip install django
 echo "weather-pimoroni weather-webserver " >> ../monitor/monitor/static/services/services.txt
 sudo mv ../monitor /rems/files/
 
@@ -97,7 +98,7 @@ done
 
 # Initialze systemd units for startup on boot
 sudo cp ./*/*.service /etc/systemd/system/
-sudo cp /rems/files/monitor/monitor.service /etc/systemd/system/
+sudo cp /rems/files/monitor/service-monitor.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now weather-pimoroni
 sudo systemctl enable --now weather-webserver
