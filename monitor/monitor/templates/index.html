@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!-- Load static tag -->
+{% load static %}
+
+<html>
+	<head>
+		<!-- Link styles.css from /static -->
+		<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	</head>
+	<body onload="fillServices()">
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+		<table id="main-table">
+			<tr>
+				<td>Service</td>
+				<td>Runtime Status</td>
+				<td>Startup Status</td>
+				<td>Operations</td>
+			</tr>
+		</table>
+
+		<!-- Link scripts.js from /static -->
+		<script src="{% static 'js/scripts.js' %}"></script>
+	</body>
+</html>

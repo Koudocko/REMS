@@ -63,6 +63,10 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 # Enable docker service
 sudo systemctl enable --now docker
 
+# Add systemd service gui monitor
+echo "weather-pimoroni weather-webserver " >> ../monitor/monitor/static/services/services.txt
+sudo mv ../monitor /rems/files/
+
 ### Install Files
 sudo mkdir -p /rems/readings
 sudo touch /rems/readings/weather.json
@@ -93,6 +97,8 @@ done
 
 # Initialze systemd units for startup on boot
 sudo cp ./*/*.service /etc/systemd/system/
+sudo cp /rems/files/monitor/monitor.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now weather-pimoroni
 sudo systemctl enable --now weather-webserver
+sudo systemctl enable --now service-monitor

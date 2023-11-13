@@ -21,6 +21,10 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 # Enable docker service
 sudo systemctl enable --now docker
 
+# Add systemd service gui monitor
+echo "bbp-server bbp-grafana bbp-prometheus" >> ../monitor/monitor/static/services/services.txt
+sudo mv ../monitor /rems/files/
+
 ### Install log file and directory
 sudo mkdir -p /rems/logs
 sudo touch /rems/logs/log.txt
@@ -77,7 +81,9 @@ sudo docker restart bbp-server
 
 # Initialze systemd units for startup on boot
 sudo cp ./*/*.service /etc/systemd/system/
+sudo cp /rems/files/monitor/monitor.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now bbp-server
 sudo systemctl enable --now bbp-grafana
 sudo systemctl enable --now bbp-prometheus
+sudo systemctl enable --now service-monitor

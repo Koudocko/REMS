@@ -1,0 +1,11 @@
+[Unit]
+Description=service-monitor web server
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/rems/files/monitor/monitor/manage.py runserver
+
+[Install]
+WantedBy=multi-user.target
