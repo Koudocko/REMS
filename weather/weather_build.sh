@@ -45,7 +45,7 @@ install_webserver(){
 
 # APT depency check
 sudo apt-get update
-sudo apt-get install ca-certificates curl gnupg
+sudo apt-get install ca-certificates curl gnupg python3-pip python3 python-is-python3
 
 # Add docker repo to keyring
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -66,7 +66,7 @@ sudo systemctl enable --now docker
 # Add systemd service gui monitor
 sudo pip install django
 echo "weather-pimoroni weather-webserver " >> ../monitor/monitor/static/services/services.txt
-sudo mv ../monitor /rems/files/
+sudo cp -r ../monitor /rems/files/
 
 ### Install Files
 sudo mkdir -p /rems/readings
