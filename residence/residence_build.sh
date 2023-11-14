@@ -46,7 +46,7 @@ sudo chmod -R 777 /rems/files
 
 ### Install arduino-cli and libraries
 curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=. sh 
-sudo mv ~/arduino-cli /usr/local/bin/arduino-cli
+sudo mv arduino-cli /usr/local/bin/arduino-cli
 sudo cp arduino/arduino-upload /usr/local/bin
 arduino-cli core update-index
 arduino-cli core install arduino:avr
