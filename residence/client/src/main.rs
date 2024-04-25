@@ -33,6 +33,9 @@ pub fn write_stream(stream: &mut TcpStream, header: String, payload: String)-> R
         payload
     };
 
+    let json_string = serde_json::to_string_pretty(&package).unwrap();
+    println!("{json_string}");
+
     let mut buf = serde_json::to_vec(&package).unwrap();
     buf.push(b'\n');
     stream.write_all(&mut buf)?;

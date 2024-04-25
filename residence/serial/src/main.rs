@@ -42,8 +42,12 @@ fn main(){
                     let mut file = File::create("/rems/readings/residence.json")
                         .expect("Failed to open /rems/readings/residence.json");
 
-                    file.write_all(serde_json::to_string_pretty(&json).unwrap().as_bytes())
+                    let json_string = serde_json::to_string_pretty(&json).unwrap();
+
+                    file.write_all(json_string.as_bytes())
                         .expect("Failed to write to /rems/readings/residence.json");
+
+                    println!("{json_string}");
                 }
 
                 json = String::new();
